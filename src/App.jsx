@@ -11,7 +11,6 @@ const colorMap = {
   "blanc": "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
 };
 
-// Fonction utilitaire pour récupérer la couleur HEX et Tailwind selon le score
 const getScoreVisuals = (score) => {
   if (score < 2) return { hex: "#ef4444", twBorder: "border-red-600", label: "Score Critique", twText: "text-red-500" };
   if (score < 3) return { hex: "#f97316", twBorder: "border-orange-500", label: "Score à améliorer", twText: "text-orange-500" };
@@ -185,7 +184,6 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* ACCUEIL */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
@@ -194,7 +192,25 @@ function App() {
           </div>
         )}
 
-        {/* DIAGNOSTIC */}
+        {/* À PROPOS (RESTAURÉ) */}
+        {activeTab === "À Propos" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
+            <div className="space-y-8">
+              <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight">Notre Engagement</h2>
+              <p className="text-xl text-slate-300 leading-relaxed font-light">
+                ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients, inclusifs et respectueux des limites planétaires.
+              </p>
+              <div className="p-6 bg-slate-900/50 rounded-2xl border border-blue-500/30">
+                <p className="text-blue-400 font-bold tracking-widest uppercase text-xs mb-2">Méthodologie</p>
+                <p className="text-sm italic text-slate-400">Analyse basée sur les 17 indicateurs de performance des ODD.</p>
+              </div>
+            </div>
+            <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
+              <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full opacity-80" />
+            </div>
+          </div>
+        )}
+
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
@@ -235,7 +251,6 @@ function App() {
           </div>
         )}
 
-        {/* QUESTIONNAIRE */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6 animate-in fade-in">
              <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
@@ -271,7 +286,6 @@ function App() {
           </div>
         )}
 
-        {/* RÉSULTATS */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -290,7 +304,6 @@ function App() {
            </div>
         )}
 
-        {/* PRIORITÉS (COULEURS DYNAMIQUES ET LIBELLÉS AJUSTÉS) */}
         {activeTab === "Priorités" && (
           <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
@@ -316,7 +329,6 @@ function App() {
           </div>
         )}
 
-        {/* CITOYENS */}
         {activeTab === "Citoyens" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
              <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32">
@@ -347,14 +359,6 @@ function App() {
           </div>
         )}
 
-        {/* CONTACT & À PROPOS */}
-        {activeTab === "À Propos" && (
-          <div className="py-12 max-w-3xl mx-auto space-y-8 animate-in fade-in">
-            <h2 className="text-6xl font-black italic uppercase underline decoration-blue-500 leading-tight">Notre Mission</h2>
-            <p className="text-xl text-slate-300 leading-relaxed">ODD-X est un outil de pilotage stratégique conçu pour transformer les données communales en actions concrètes.</p>
-          </div>
-        )}
-
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8 text-slate-300 text-xl font-light">
@@ -362,7 +366,7 @@ function App() {
               <p>📍 Paris, France</p>
               <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold hover:text-blue-500">info@odd-x.com</a></p>
             </div>
-            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4 shadow-2xl">
+            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4">
               <input type="text" name="name" required placeholder="NOM" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <input type="email" name="email" required placeholder="EMAIL" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <textarea name="message" required placeholder="MESSAGE..." rows="5" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold"></textarea>
