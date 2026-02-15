@@ -359,12 +359,23 @@ function App() {
           </div>
         )}
 
-        {/* --- CONTACT --- */}
+        {/* --- CONTACT (MIS À JOUR) --- */}
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8">
               <h2 className="text-7xl font-black uppercase italic underline decoration-blue-500 leading-tight">Contact</h2>
-              <p className="text-slate-500 text-xl font-light italic leading-relaxed">Une question ? Notre équipe vous répond sous 48h.</p>
+              <div className="text-slate-300 text-xl font-light leading-relaxed space-y-6">
+                <p className="italic">Une question ? Notre équipe vous répond sous 48h.</p>
+                <div className="space-y-1">
+                  <p className="text-blue-500 font-black text-sm uppercase tracking-tighter">📍 Localisation</p>
+                  <p className="font-bold">Paris, France</p>
+                  <p className="text-sm text-slate-500 uppercase font-black">Siège ODD-X</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-blue-500 font-black text-sm uppercase tracking-tighter">✉️ E-mail</p>
+                  <a href="mailto:info@odd-x.com" className="font-bold hover:text-blue-400 transition-colors">info@odd-x.com</a>
+                </div>
+              </div>
             </div>
             <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4 shadow-2xl">
               <input type="text" name="name" required placeholder="NOM COMPLET" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
