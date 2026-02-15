@@ -3,20 +3,21 @@ import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
 
 const colorMap = {
-  "rouge": "bg-red-50 text-red-700 border-red-200 hover:bg-red-100",
-  "orange": "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100",
-  "jaune": "bg-yellow-50 text-yellow-800 border-yellow-200 hover:bg-yellow-100",
-  "vert clair": "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
-  "vert foncé": "bg-green-100 text-green-800 border-green-300 hover:bg-green-200",
+  "rouge": "bg-red-100 text-red-700 border-red-400 hover:bg-red-200",
+  "orange": "bg-orange-100 text-orange-700 border-orange-400 hover:bg-orange-200",
+  "jaune": "bg-yellow-100 text-yellow-800 border-yellow-400 hover:bg-yellow-200",
+  "vert clair": "bg-green-100 text-green-700 border-green-400 hover:bg-green-200",
+  "vert foncé": "bg-green-200 text-green-800 border-green-500 hover:bg-green-300",
   "blanc": "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
 };
 
+// Renforcement des couleurs pour le mode clair
 const getScoreVisuals = (score) => {
-  if (score < 2) return { hex: "#ef4444", twBorder: "border-red-500", label: "Score Critique", twText: "text-red-600", bg: "bg-red-50" };
-  if (score < 3) return { hex: "#f97316", twBorder: "border-orange-400", label: "Score à améliorer", twText: "text-orange-600", bg: "bg-orange-50" };
-  if (score < 4) return { hex: "#eab308", twBorder: "border-yellow-400", label: "Score à améliorer", twText: "text-yellow-700", bg: "bg-yellow-50" };
-  if (score < 4.5) return { hex: "#22c55e", twBorder: "border-green-400", label: "Bon score", twText: "text-green-600", bg: "bg-green-50" };
-  return { hex: "#15803d", twBorder: "border-green-600", label: "Excellent score", twText: "text-green-700", bg: "bg-green-100" };
+  if (score < 2) return { hex: "#dc2626", twBorder: "border-red-600", label: "Score Critique", twText: "text-red-600", bg: "bg-red-50" };
+  if (score < 3) return { hex: "#ea580c", twBorder: "border-orange-600", label: "Score à améliorer", twText: "text-orange-600", bg: "bg-orange-50" };
+  if (score < 4) return { hex: "#ca8a04", twBorder: "border-yellow-600", label: "Score à améliorer", twText: "text-yellow-600", bg: "bg-yellow-50" };
+  if (score < 4.5) return { hex: "#16a34a", twBorder: "border-green-600", label: "Bon score", twText: "text-green-600", bg: "bg-green-50" };
+  return { hex: "#15803d", twBorder: "border-green-700", label: "Excellent score", twText: "text-green-700", bg: "bg-green-100" };
 };
 
 function App() {
@@ -201,7 +202,7 @@ function App() {
               <p className="text-xl text-slate-600 leading-relaxed font-light">
                 ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.
               </p>
-              <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
+              <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100 shadow-sm">
                 <p className="text-blue-600 font-bold tracking-widest uppercase text-xs mb-2">Méthodologie</p>
                 <p className="text-sm italic text-slate-500">Analyse basée sur les 17 indicateurs de performance des ODD.</p>
               </div>
@@ -308,7 +309,7 @@ function App() {
            </div>
         )}
 
-        {/* PRIORITÉS */}
+        {/* PRIORITÉS (AVEC COULEURS RENFORCÉES) */}
         {activeTab === "Priorités" && (
           <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Priorités stratégiques</h2>
@@ -317,14 +318,16 @@ function App() {
               {lowPerformingODDs.map(item => {
                 const visuals = getScoreVisuals(item.value);
                 return (
-                  <div key={item.odd} className={`bg-white p-8 rounded-[30px] border-l-[12px] ${visuals.twBorder} flex justify-between items-center shadow-sm border border-slate-200 transition-all hover:shadow-md`}>
+                  <div key={item.odd} className={`bg-white p-8 rounded-[30px] border-l-[16px] ${visuals.twBorder} flex justify-between items-center shadow-sm border border-slate-200 transition-all hover:shadow-md`}>
                     <div className="space-y-2">
-                      <div className={`text-4xl font-black ${visuals.twText} opacity-30 italic uppercase leading-none`}>{item.odd}</div>
+                      <div className={`text-4xl font-black ${visuals.twText} italic uppercase leading-none`}>
+                        {item.odd}
+                      </div>
                       <p className="text-lg font-bold text-slate-700">Action recommandée pour renforcer cet objectif de durabilité.</p>
                     </div>
                     <div className="text-right shrink-0 ml-8">
-                      <p className={`${visuals.twText} font-black text-[10px] uppercase tracking-widest`}>{visuals.label}</p>
-                      <p className="text-3xl font-black text-slate-800">{item.value} / 5</p>
+                      <p className={`${visuals.twText} font-black text-[10px] uppercase tracking-widest mb-1`}>{visuals.label}</p>
+                      <p className="text-4xl font-black text-slate-900 leading-none">{item.value} <span className="text-sm text-slate-400">/ 5</span></p>
                     </div>
                   </div>
                 );
