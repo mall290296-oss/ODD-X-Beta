@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
 
-// Mapping des couleurs mis à jour
 const colorMap = {
   "rouge": "bg-red-600 text-white border-red-400 hover:bg-red-700",
   "orange": "bg-orange-500 text-white border-orange-300 hover:bg-orange-600",
@@ -15,7 +14,6 @@ const colorMap = {
 function App() {
   const [activeTab, setActiveTab] = useState("Accueil");
 
-  // --- LOGIQUE DE GESTION DES PROFILS & LOCALSTORAGE ---
   const [profiles, setProfiles] = useState(() => {
     const saved = localStorage.getItem("oddx_profiles_list");
     return saved ? JSON.parse(saved) : [];
@@ -87,17 +85,31 @@ function App() {
     }
   };
 
-  const resetAllData = () => {
-    if (window.confirm("Attention : Cela effacera TOUTES les mairies enregistrées. Confirmer ?")) {
-      localStorage.clear();
-      window.location.reload();
+  // NOUVELLE FONCTION : SUPPRIMER UN PROFIL SPÉCIFIQUE
+  const handleDeleteCurrentProfile = () => {
+    const name = muralInfo["Nom de la commune"];
+    if (!name) return;
+
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement le profil de "${name}" ?`)) {
+      // 1. Retirer de la liste des profils
+      const newProfiles = profiles.filter(p => p !== name);
+      setProfiles(newProfiles);
+      localStorage.setItem("oddx_profiles_list", JSON.stringify(newProfiles));
+
+      // 2. Retirer l'identité stockée
+      const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
+      delete allIdentities[name];
+      localStorage.setItem("oddx_all_identities", JSON.stringify(allIdentities));
+
+      // 3. Retirer les réponses
+      localStorage.removeItem(storageKey);
+
+      // 4. Réinitialiser la vue
+      setMuralInfo({});
+      setAnswers({});
+      alert("Profil supprimé avec succès.");
     }
   };
-
-  // --- CALCULS SCORES ---
-  const isFullyIdentified = useMemo(() => {
-    return allRequiredFields.every(field => muralInfo[field] && muralInfo[field].toString().trim() !== "");
-  }, [muralInfo, allRequiredFields]);
 
   const { oddAverages, globalScore, lowPerformingODDs } = useMemo(() => {
     const scores = {};
@@ -118,7 +130,7 @@ function App() {
     return {
       oddAverages: averages.sort((a, b) => a.odd.localeCompare(b.odd, undefined, {numeric: true})),
       globalScore: averages.length > 0 ? (averages.reduce((acc, item) => acc + item.value, 0) / averages.length).toFixed(2) : 0,
-      lowPerformingODDs: averages.filter(item => item.value < 3.0)
+      lowPerformingODDs: averages.filter(item => item.value < 4.0) // SEUIL AJUSTÉ À 4.0
     };
   }, [answers]);
 
@@ -162,17 +174,18 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
+        {/* ACCUEIL (BOUTON RESET SUPPRIMÉ) */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
             <p className="text-2xl text-slate-400 max-w-2xl mx-auto font-light">Le diagnostic de durabilité pour les collectivités territoriales.</p>
-            <div className="flex justify-center gap-6 pt-8">
+            <div className="flex justify-center pt-8">
               <button onClick={() => setActiveTab("Diagnostic")} className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-5 rounded-full font-black text-lg transition-all hover:scale-105">DÉMARRER</button>
-              <button onClick={resetAllData} className="border border-white/20 hover:bg-white/10 px-12 py-5 rounded-full font-black text-lg transition-all">RÉINITIALISER TOUT</button>
             </div>
           </div>
         )}
 
+        {/* À PROPOS */}
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
             <div className="space-y-8">
@@ -191,19 +204,30 @@ function App() {
           </div>
         )}
 
+        {/* DIAGNOSTIC (AJOUT DU BOUTON SUPPRIMER PROFIL) */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
-              <div>
-                <h3 className="text-blue-500 font-black uppercase text-xs tracking-widest">Gestion des Profils</h3>
-                <select 
-                  onChange={(e) => handleSwitchProfile(e.target.value)}
-                  value={muralInfo["Nom de la commune"] || ""}
-                  className="bg-black border border-white/20 p-2 mt-2 rounded-lg text-sm font-bold w-64 outline-none focus:border-blue-500"
-                >
-                  <option value="">-- Sélectionner une mairie --</option>
-                  {profiles.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+              <div className="flex flex-col sm:flex-row items-end gap-4">
+                <div>
+                  <h3 className="text-blue-500 font-black uppercase text-xs tracking-widest">Sélectionner une Mairie</h3>
+                  <select 
+                    onChange={(e) => handleSwitchProfile(e.target.value)}
+                    value={muralInfo["Nom de la commune"] || ""}
+                    className="bg-black border border-white/20 p-2 mt-2 rounded-lg text-sm font-bold w-64 outline-none focus:border-blue-500"
+                  >
+                    <option value="">-- Sélectionner --</option>
+                    {profiles.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                {muralInfo["Nom de la commune"] && (
+                  <button 
+                    onClick={handleDeleteCurrentProfile}
+                    className="bg-red-600/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all"
+                  >
+                    Supprimer ce profil
+                  </button>
+                )}
               </div>
               <button onClick={handleNewProfile} className="bg-white text-black px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-blue-500 hover:text-white transition-all">➕ Nouvelle Mairie</button>
             </div>
@@ -232,21 +256,20 @@ function App() {
                 onClick={() => setActiveTab("Questionnaire")} 
                 className={`px-12 py-5 rounded-2xl font-black uppercase transition-all shadow-2xl ${isFullyIdentified ? "bg-blue-600 scale-105" : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"}`}
               >
-                {isFullyIdentified ? "Passer au Questionnaire" : `Remplir les ${allRequiredFields.filter(f => !muralInfo[f]).length} champs restants`}
+                {isFullyIdentified ? "Passer au Questionnaire" : `Remplir les champs restants`}
               </button>
             </div>
           </div>
         )}
 
-        {/* QUESTIONNAIRE - POINTS MASQUÉS & NETTOYAGE COMPLET */}
+        {/* QUESTIONNAIRE */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6">
             <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
                 <p className="text-sm font-black uppercase tracking-widest italic">Collectivité : {muralInfo["Nom de la commune"]}</p>
-                <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black uppercase text-white">Modifier</button>
+                <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black uppercase text-white">Retour</button>
             </div>
             {questions.map((q) => {
-              // NETTOYAGE DYNAMIQUE (Gère Q1, Q47, tirets courts et longs)
               const cleanedQuestionText = q.question.replace(/^Q\d+\s?[-–]\s?/, "");
               return (
                 <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 transition-all">
@@ -305,16 +328,17 @@ function App() {
            </div>
         )}
 
-        {/* PRIORITÉS */}
+        {/* PRIORITÉS (SEUIL À 4.0) */}
         {activeTab === "Priorités" && (
           <div className="space-y-8">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
+            <p className="text-slate-400 italic">ODD nécessitant une attention particulière (Score inférieur à 4.0)</p>
             <div className="grid gap-6">
               {lowPerformingODDs.map(item => (
-                <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-blue-600 flex justify-between items-center">
+                <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-blue-600 flex justify-between items-center shadow-lg">
                   <div className="space-y-2">
                     <div className="text-4xl font-black text-blue-600/40 italic uppercase leading-none">{item.odd}</div>
-                    <p className="text-lg font-bold text-slate-200">Action recommandée pour augmenter ce score.</p>
+                    <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif de durabilité.</p>
                   </div>
                   <div className="text-right shrink-0 ml-8">
                     <p className="text-blue-500 font-black text-[10px] uppercase tracking-widest">Score</p>
@@ -322,7 +346,7 @@ function App() {
                   </div>
                 </div>
               ))}
-              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Aucun ODD sous la barre de 3.0.</p>}
+              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Félicitations ! Tous vos ODD sont au-dessus de 4.0.</p>}
             </div>
           </div>
         )}
