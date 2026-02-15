@@ -14,6 +14,7 @@ const colorMap = {
 function App() {
   const [activeTab, setActiveTab] = useState("Accueil");
 
+  // --- ÉTATS ---
   const [profiles, setProfiles] = useState(() => {
     const saved = localStorage.getItem("oddx_profiles_list");
     return saved ? JSON.parse(saved) : [];
@@ -24,18 +25,22 @@ function App() {
     return saved ? JSON.parse(saved) : {};
   });
 
-  const storageKey = muralInfo["Nom de la commune"] 
-    ? `oddx_answers_${muralInfo["Nom de la commune"].replace(/\s+/g, '_').toLowerCase()}`
-    : "oddx_answers_default";
+  const [citizenIdeas, setCitizenIdeas] = useState(() => {
+    const saved = localStorage.getItem("oddx_ideas");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Définition de la clé de stockage dynamique
+  const storageKey = useMemo(() => {
+    const name = muralInfo["Nom de la commune"];
+    return name 
+      ? `oddx_answers_${name.replace(/\s+/g, '_').toLowerCase()}`
+      : "oddx_answers_default";
+  }, [muralInfo]);
 
   const [answers, setAnswers] = useState(() => {
     const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : {};
-  });
-
-  const [citizenIdeas, setCitizenIdeas] = useState(() => {
-    const saved = localStorage.getItem("oddx_ideas");
-    return saved ? JSON.parse(saved) : [];
   });
 
   const identityFields = {
@@ -48,6 +53,7 @@ function App() {
 
   const allRequiredFields = Object.values(identityFields).flat();
 
+  // --- EFFETS ---
   useEffect(() => {
     const savedAnswers = localStorage.getItem(storageKey);
     setAnswers(savedAnswers ? JSON.parse(savedAnswers) : {});
@@ -71,10 +77,19 @@ function App() {
     }
   }, [answers, muralInfo, citizenIdeas, storageKey, profiles]);
 
+  // --- ACTIONS ---
   const handleSwitchProfile = (profileName) => {
+    if (!profileName) {
+        setMuralInfo({});
+        setAnswers({});
+        return;
+    }
     const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
     if (allIdentities[profileName]) {
       setMuralInfo(allIdentities[profileName]);
+      const specificKey = `oddx_answers_${profileName.replace(/\s+/g, '_').toLowerCase()}`;
+      const savedAns = localStorage.getItem(specificKey);
+      setAnswers(savedAns ? JSON.parse(savedAns) : {});
     }
   };
 
@@ -85,31 +100,26 @@ function App() {
     }
   };
 
-  // NOUVELLE FONCTION : SUPPRIMER UN PROFIL SPÉCIFIQUE
   const handleDeleteCurrentProfile = () => {
     const name = muralInfo["Nom de la commune"];
     if (!name) return;
-
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement le profil de "${name}" ?`)) {
-      // 1. Retirer de la liste des profils
+    if (window.confirm(`Supprimer définitivement le profil de "${name}" ?`)) {
       const newProfiles = profiles.filter(p => p !== name);
       setProfiles(newProfiles);
       localStorage.setItem("oddx_profiles_list", JSON.stringify(newProfiles));
-
-      // 2. Retirer l'identité stockée
       const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
       delete allIdentities[name];
       localStorage.setItem("oddx_all_identities", JSON.stringify(allIdentities));
-
-      // 3. Retirer les réponses
       localStorage.removeItem(storageKey);
-
-      // 4. Réinitialiser la vue
       setMuralInfo({});
       setAnswers({});
-      alert("Profil supprimé avec succès.");
     }
   };
+
+  // --- CALCULS ---
+  const isFullyIdentified = useMemo(() => {
+    return allRequiredFields.every(field => muralInfo[field] && muralInfo[field].toString().trim() !== "");
+  }, [muralInfo, allRequiredFields]);
 
   const { oddAverages, globalScore, lowPerformingODDs } = useMemo(() => {
     const scores = {};
@@ -130,7 +140,7 @@ function App() {
     return {
       oddAverages: averages.sort((a, b) => a.odd.localeCompare(b.odd, undefined, {numeric: true})),
       globalScore: averages.length > 0 ? (averages.reduce((acc, item) => acc + item.value, 0) / averages.length).toFixed(2) : 0,
-      lowPerformingODDs: averages.filter(item => item.value < 4.0) // SEUIL AJUSTÉ À 4.0
+      lowPerformingODDs: averages.filter(item => item.value < 4.0)
     };
   }, [answers]);
 
@@ -152,16 +162,8 @@ function App() {
     }],
   };
 
-  const handleAddIdea = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newIdea = { odd: formData.get("oddSelection"), text: formData.get("ideaText"), date: new Date().toLocaleDateString() };
-    setCitizenIdeas([newIdea, ...citizenIdeas]);
-    e.target.reset();
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500">
+    <div className="min-h-screen bg-black text-white font-sans">
       <nav className="border-b border-white/10 px-8 py-4 sticky top-0 bg-black/90 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <span className="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer" onClick={() => setActiveTab("Accueil")}>ODD-X</span>
@@ -174,29 +176,21 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* ACCUEIL (BOUTON RESET SUPPRIMÉ) */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
             <p className="text-2xl text-slate-400 max-w-2xl mx-auto font-light">Le diagnostic de durabilité pour les collectivités territoriales.</p>
-            <div className="flex justify-center pt-8">
-              <button onClick={() => setActiveTab("Diagnostic")} className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-5 rounded-full font-black text-lg transition-all hover:scale-105">DÉMARRER</button>
-            </div>
+            <button onClick={() => setActiveTab("Diagnostic")} className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-5 rounded-full font-black text-lg transition-all hover:scale-105">DÉMARRER</button>
           </div>
         )}
 
-        {/* À PROPOS */}
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
             <div className="space-y-8">
               <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight">Notre Engagement</h2>
               <p className="text-xl text-slate-300 leading-relaxed font-light">
-                ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients, inclusifs et respectueux des limites planétaires.
+                ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.
               </p>
-              <div className="p-6 bg-slate-900/50 rounded-2xl border border-blue-500/30">
-                <p className="text-blue-400 font-bold tracking-widest uppercase text-xs mb-2">Méthodologie</p>
-                <p className="text-sm italic text-slate-400">Analyse basée sur les 17 indicateurs de performance des ODD.</p>
-              </div>
             </div>
             <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
               <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full opacity-80" />
@@ -204,9 +198,8 @@ function App() {
           </div>
         )}
 
-        {/* DIAGNOSTIC (AJOUT DU BOUTON SUPPRIMER PROFIL) */}
         {activeTab === "Diagnostic" && (
-          <div className="max-w-5xl mx-auto space-y-8">
+          <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
               <div className="flex flex-col sm:flex-row items-end gap-4">
                 <div>
@@ -221,15 +214,10 @@ function App() {
                   </select>
                 </div>
                 {muralInfo["Nom de la commune"] && (
-                  <button 
-                    onClick={handleDeleteCurrentProfile}
-                    className="bg-red-600/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all"
-                  >
-                    Supprimer ce profil
-                  </button>
+                  <button onClick={handleDeleteCurrentProfile} className="bg-red-600/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all">Supprimer</button>
                 )}
               </div>
-              <button onClick={handleNewProfile} className="bg-white text-black px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-blue-500 hover:text-white transition-all">➕ Nouvelle Mairie</button>
+              <button onClick={handleNewProfile} className="bg-white text-black px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-blue-500 transition-all">➕ Nouvelle Mairie</button>
             </div>
 
             {Object.entries(identityFields).map(([category, fields]) => (
@@ -242,7 +230,7 @@ function App() {
                       <input 
                         value={muralInfo[field] || ""} 
                         onChange={(e) => setMuralInfo({...muralInfo, [field]: e.target.value})} 
-                        className={`bg-black border p-3 rounded-xl focus:border-blue-500 outline-none text-sm font-bold transition-all ${muralInfo[field] ? "border-green-500/30 text-white" : "border-white/10 text-slate-400"}`} 
+                        className={`bg-black border p-3 rounded-xl focus:border-blue-500 outline-none text-sm font-bold transition-all ${muralInfo[field] ? "border-green-500/30" : "border-white/10"}`} 
                       />
                     </div>
                   ))}
@@ -251,53 +239,30 @@ function App() {
             ))}
             
             <div className="text-center pt-8 sticky bottom-8">
-              <button 
-                disabled={!isFullyIdentified} 
-                onClick={() => setActiveTab("Questionnaire")} 
-                className={`px-12 py-5 rounded-2xl font-black uppercase transition-all shadow-2xl ${isFullyIdentified ? "bg-blue-600 scale-105" : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"}`}
-              >
-                {isFullyIdentified ? "Passer au Questionnaire" : `Remplir les champs restants`}
+              <button disabled={!isFullyIdentified} onClick={() => setActiveTab("Questionnaire")} className={`px-12 py-5 rounded-2xl font-black uppercase transition-all shadow-2xl ${isFullyIdentified ? "bg-blue-600 scale-105" : "bg-slate-800 text-slate-500 cursor-not-allowed"}`}>
+                {isFullyIdentified ? "Passer au Questionnaire" : "Remplir tous les champs"}
               </button>
             </div>
           </div>
         )}
 
-        {/* QUESTIONNAIRE */}
         {activeTab === "Questionnaire" && (
-          <div className="space-y-6">
-            <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
-                <p className="text-sm font-black uppercase tracking-widest italic">Collectivité : {muralInfo["Nom de la commune"]}</p>
-                <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black uppercase text-white">Retour</button>
-            </div>
+          <div className="space-y-6 animate-in fade-in">
             {questions.map((q) => {
               const cleanedQuestionText = q.question.replace(/^Q\d+\s?[-–]\s?/, "");
               return (
-                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 transition-all">
+                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5">
                   <div className="flex gap-2 mb-4">
-                    {q.odds.map(o => (
-                      <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>
-                    ))}
+                    {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
                   </div>
                   <p className="text-xl font-bold mb-6">{q.id}. {cleanedQuestionText}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {q.options.map((opt, idx) => {
                       const points = idx === 5 ? 0 : idx + 1;
                       const isSelected = answers[q.id] === points;
-                      const cleanedOptionText = opt.text.replace(/^X\s/, "");
-                      
                       return (
-                        <button
-                          key={idx}
-                          onClick={() => setAnswers({...answers, [q.id]: points})}
-                          className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 font-bold uppercase text-xs
-                            ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02] z-10" : "opacity-80 hover:opacity-100"}
-                            ${colorMap[opt.color] || "bg-slate-800 text-white border-white/10"}
-                          `}
-                        >
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "bg-white border-white" : "border-current opacity-30"}`}>
-                             {isSelected && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
-                          </div>
-                          <span>{cleanedOptionText}</span>
+                        <button key={idx} onClick={() => setAnswers({...answers, [q.id]: points})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-xs ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02]" : "opacity-80"} ${colorMap[opt.color] || "bg-slate-800"}`}>
+                          {opt.text.replace(/^X\s/, "")}
                         </button>
                       );
                     })}
@@ -305,11 +270,10 @@ function App() {
                 </div>
               );
             })}
-            <button onClick={() => setActiveTab("Résultats")} className="w-full bg-blue-600 p-6 rounded-2xl font-black uppercase mt-10 shadow-xl shadow-blue-500/20 hover:scale-[1.01] transition-all">Calculer les résultats</button>
+            <button onClick={() => setActiveTab("Résultats")} className="w-full bg-blue-600 p-6 rounded-2xl font-black uppercase mt-10 shadow-xl transition-all hover:bg-blue-700">Calculer les résultats</button>
           </div>
         )}
 
-        {/* RÉSULTATS */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -328,9 +292,8 @@ function App() {
            </div>
         )}
 
-        {/* PRIORITÉS (SEUIL À 4.0) */}
         {activeTab === "Priorités" && (
-          <div className="space-y-8">
+          <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
             <p className="text-slate-400 italic">ODD nécessitant une attention particulière (Score inférieur à 4.0)</p>
             <div className="grid gap-6">
@@ -338,7 +301,7 @@ function App() {
                 <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-blue-600 flex justify-between items-center shadow-lg">
                   <div className="space-y-2">
                     <div className="text-4xl font-black text-blue-600/40 italic uppercase leading-none">{item.odd}</div>
-                    <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif de durabilité.</p>
+                    <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif.</p>
                   </div>
                   <div className="text-right shrink-0 ml-8">
                     <p className="text-blue-500 font-black text-[10px] uppercase tracking-widest">Score</p>
@@ -346,61 +309,28 @@ function App() {
                   </div>
                 </div>
               ))}
-              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Félicitations ! Tous vos ODD sont au-dessus de 4.0.</p>}
+              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Excellent ! Tous vos ODD sont au-dessus de 4.0.</p>}
             </div>
           </div>
         )}
 
-        {/* CITOYENS */}
         {activeTab === "Citoyens" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
-             <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32">
-                <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-500">Proposer une idée</h3>
-                <form onSubmit={handleAddIdea} className="space-y-4">
-                  <select name="oddSelection" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white font-bold outline-none focus:border-blue-500" required>
-                    <option value="">Choisir un ODD...</option>
-                    {oddAverages.map(item => <option key={item.odd} value={item.odd}>{item.odd}</option>)}
-                  </select>
-                  <textarea name="ideaText" placeholder="Proposition..." rows="6" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white outline-none focus:border-blue-500" required></textarea>
-                  <button type="submit" className="w-full bg-blue-600 p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all text-white">Publier</button>
-                </form>
-             </div>
-             <div className="lg:col-span-2 space-y-6">
-                <h3 className="text-2xl font-black uppercase italic border-b border-white/10 pb-4 tracking-tighter">Boîte à idées</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {citizenIdeas.map((idea, idx) => (
-                    <div key={idx} className="bg-white text-black p-6 rounded-3xl flex flex-col justify-between shadow-xl">
-                      <p className="font-bold leading-tight mb-4 italic text-lg">"{idea.text}"</p>
-                      <div className="flex justify-between items-center mt-4">
-                         <span className="bg-blue-600 text-white px-2 py-1 rounded text-[8px] font-black uppercase">{idea.odd}</span>
-                         <span className="text-[8px] font-black text-slate-400 uppercase">Le {idea.date}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-             </div>
-          </div>
+            <div className="text-center py-20 animate-in fade-in">
+                <h2 className="text-4xl font-black uppercase italic">Espace Citoyen</h2>
+                <p className="text-slate-500 mt-4">Module en cours de synchronisation...</p>
+            </div>
         )}
 
-        {/* CONTACT */}
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8">
               <h2 className="text-7xl font-black uppercase italic underline decoration-blue-500 leading-tight">Contact</h2>
-              <div className="text-slate-300 text-xl font-light leading-relaxed space-y-6">
-                <p className="italic">Une question ? Notre équipe vous répond sous 48h.</p>
-                <div className="space-y-1">
-                  <p className="text-blue-500 font-black text-sm uppercase tracking-tighter">📍 Localisation</p>
-                  <p className="font-bold">Paris, France</p>
-                  <p className="text-sm text-slate-500 uppercase font-black">Siège ODD-X</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-blue-500 font-black text-sm uppercase tracking-tighter">✉️ E-mail</p>
-                  <a href="mailto:info@odd-x.com" className="font-bold hover:text-blue-400 transition-colors">info@odd-x.com</a>
-                </div>
+              <div className="text-slate-300 text-xl font-light leading-relaxed">
+                <p className="font-bold">📍 Paris, France</p>
+                <p className="font-bold">✉️ info@odd-x.com</p>
               </div>
             </div>
-            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4 shadow-2xl">
+            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4">
               <input type="text" name="name" required placeholder="NOM COMPLET" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <input type="email" name="email" required placeholder="EMAIL" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <textarea name="message" required placeholder="MESSAGE..." rows="5" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold"></textarea>
