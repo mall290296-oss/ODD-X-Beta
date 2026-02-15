@@ -151,7 +151,7 @@ function App() {
 
   const chartOption = {
     backgroundColor: "transparent",
-    tooltip: { 
+    tooltip: {
       trigger: "item",
       padding: 15,
       backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -231,7 +231,6 @@ function App() {
               <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight text-slate-900">Notre Engagement</h2>
               <p className="text-xl text-slate-600 leading-relaxed font-light">ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.</p>
             </div>
-            {/* Effet de glissement enlevé ici */}
             <div className="rounded-[40px] overflow-hidden border border-slate-200 shadow-2xl">
               <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full grayscale hover:grayscale-0 transition-all duration-700" />
             </div>
@@ -368,7 +367,6 @@ function App() {
               {[
                 { name: "ADEME", full: "Agence de la transition écologique", desc: "Expertise technique et financements pour les projets de transition énergétique et d'économie circulaire.", link: "https://www.ademe.fr" },
                 { name: "FVD", full: "France Villes et Territoires Durables", desc: "Fédération des acteurs de la ville durable pour accélérer le déploiement des ODD à l'échelle locale.", link: "https://francevilledurable.fr/" },
-                // Lien mis à jour ici
                 { name: "Club DD", full: "Le club développement durable", desc: "Réseau d'échange pour les établissements et entreprises publics sur les enjeux de durabilité.", link: "https://www.ecologie.gouv.fr/politiques-publiques/club-developpement-durable-etablissements-entreprises-publics" },
                 { name: "ANCT", full: "Agence Nationale de la Cohésion des Territoires", desc: "Support aux mairies dans leurs projets de revitalisation et de cohésion territoriale.", link: "https://agence-cohesion-territoires.gouv.fr" }
               ].map((inst, i) => (
@@ -387,20 +385,17 @@ function App() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 animate-in fade-in">
              <div className="lg:col-span-1 bg-white p-8 rounded-[40px] border border-slate-200 h-fit shadow-sm">
                 <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-600">Proposer une idée</h3>
-                
-                {/* Visualisation de l'ODD sélectionné */}
                 {selectedOddForm && (
                   <div className="flex items-center gap-4 mb-6 p-4 bg-slate-50 rounded-2xl animate-in zoom-in-95">
                     <img src={oddIcons[selectedOddForm]} alt="" className="w-16 h-16 rounded-lg" />
                     <p className="text-xs font-bold text-slate-600">{oddDescriptions[selectedOddForm]}</p>
                   </div>
                 )}
-
                 <form onSubmit={handleAddIdea} className="space-y-4">
-                  <select 
+                  <select
                     value={selectedOddForm}
                     onChange={(e) => setSelectedOddForm(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" 
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                     required
                   >
                     <option value="">Choisir un ODD...</option>
@@ -441,11 +436,18 @@ function App() {
               <p>📍 Paris, France</p>
               <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold text-blue-600 hover:underline">info@odd-x.com</a></p>
             </div>
-            <form className="bg-white p-12 rounded-[50px] border border-slate-200 space-y-4 shadow-xl">
-              <input type="text" placeholder="NOM" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" />
-              <input type="email" placeholder="EMAIL" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" />
-              <textarea placeholder="MESSAGE..." rows="5" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold"></textarea>
-              <button type="button" className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100">Envoyer</button>
+            {/* Formulaire désormais relié à ton lien Formspree */}
+            <form 
+              action="https://formspree.io/f/xwvnldkr" 
+              method="POST" 
+              className="bg-white p-12 rounded-[50px] border border-slate-200 space-y-4 shadow-xl"
+            >
+              <input type="text" name="name" placeholder="NOM" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required />
+              <input type="email" name="email" placeholder="EMAIL" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required />
+              <textarea name="message" placeholder="MESSAGE..." rows="5" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required></textarea>
+              <button type="submit" className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">
+                Envoyer
+              </button>
             </form>
           </div>
         )}
