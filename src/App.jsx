@@ -11,13 +11,13 @@ const colorMap = {
   "blanc": "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
 };
 
-// Renforcement des couleurs pour le mode clair
+// Renforcement drastique des couleurs et des bordures pour le mode clair
 const getScoreVisuals = (score) => {
-  if (score < 2) return { hex: "#dc2626", twBorder: "border-red-600", label: "Score Critique", twText: "text-red-600", bg: "bg-red-50" };
-  if (score < 3) return { hex: "#ea580c", twBorder: "border-orange-600", label: "Score à améliorer", twText: "text-orange-600", bg: "bg-orange-50" };
-  if (score < 4) return { hex: "#ca8a04", twBorder: "border-yellow-600", label: "Score à améliorer", twText: "text-yellow-600", bg: "bg-yellow-50" };
-  if (score < 4.5) return { hex: "#16a34a", twBorder: "border-green-600", label: "Bon score", twText: "text-green-600", bg: "bg-green-50" };
-  return { hex: "#15803d", twBorder: "border-green-700", label: "Excellent score", twText: "text-green-700", bg: "bg-green-100" };
+  if (score < 2) return { hex: "#dc2626", twBorder: "border-l-red-600", label: "Score Critique", twText: "text-red-600" };
+  if (score < 3) return { hex: "#ea580c", twBorder: "border-l-orange-600", label: "Score à améliorer", twText: "text-orange-600" };
+  if (score < 4) return { hex: "#ca8a04", twBorder: "border-l-yellow-600", label: "Score à améliorer", twText: "text-yellow-600" };
+  if (score < 4.5) return { hex: "#16a34a", twBorder: "border-l-green-600", label: "Bon score", twText: "text-green-600" };
+  return { hex: "#15803d", twBorder: "border-l-green-800", label: "Excellent score", twText: "text-green-800" };
 };
 
 function App() {
@@ -185,7 +185,6 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* ACCUEIL */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none text-slate-900">ODD-X</h1>
@@ -194,7 +193,6 @@ function App() {
           </div>
         )}
 
-        {/* À PROPOS */}
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
             <div className="space-y-8">
@@ -213,7 +211,6 @@ function App() {
           </div>
         )}
 
-        {/* DIAGNOSTIC */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
@@ -254,7 +251,6 @@ function App() {
           </div>
         )}
 
-        {/* QUESTIONNAIRE */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6 animate-in fade-in">
              <div className="bg-white border border-slate-200 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-sm">
@@ -290,7 +286,6 @@ function App() {
           </div>
         )}
 
-        {/* RÉSULTATS */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-slate-200 pb-8 uppercase">
@@ -309,7 +304,7 @@ function App() {
            </div>
         )}
 
-        {/* PRIORITÉS (AVEC COULEURS RENFORCÉES) */}
+        {/* SECTION PRIORITÉS CORRIGÉE */}
         {activeTab === "Priorités" && (
           <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Priorités stratégiques</h2>
@@ -318,16 +313,16 @@ function App() {
               {lowPerformingODDs.map(item => {
                 const visuals = getScoreVisuals(item.value);
                 return (
-                  <div key={item.odd} className={`bg-white p-8 rounded-[30px] border-l-[16px] ${visuals.twBorder} flex justify-between items-center shadow-sm border border-slate-200 transition-all hover:shadow-md`}>
+                  <div key={item.odd} className={`bg-white p-8 rounded-[30px] border-l-[20px] ${visuals.twBorder} flex justify-between items-center shadow-md border border-slate-200 transition-all hover:shadow-lg`}>
                     <div className="space-y-2">
-                      <div className={`text-4xl font-black ${visuals.twText} italic uppercase leading-none`}>
+                      <div className={`text-5xl font-black ${visuals.twText} italic uppercase leading-none`}>
                         {item.odd}
                       </div>
-                      <p className="text-lg font-bold text-slate-700">Action recommandée pour renforcer cet objectif de durabilité.</p>
+                      <p className="text-lg font-bold text-slate-700">Action prioritaire pour redresser cet indicateur.</p>
                     </div>
                     <div className="text-right shrink-0 ml-8">
-                      <p className={`${visuals.twText} font-black text-[10px] uppercase tracking-widest mb-1`}>{visuals.label}</p>
-                      <p className="text-4xl font-black text-slate-900 leading-none">{item.value} <span className="text-sm text-slate-400">/ 5</span></p>
+                      <p className={`${visuals.twText} font-black text-[11px] uppercase tracking-widest mb-1`}>{visuals.label}</p>
+                      <p className="text-5xl font-black text-slate-900 leading-none">{item.value} <span className="text-sm text-slate-400">/ 5</span></p>
                     </div>
                   </div>
                 );
@@ -337,7 +332,6 @@ function App() {
           </div>
         )}
 
-        {/* CITOYENS */}
         {activeTab === "Citoyens" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
              <div className="lg:col-span-1 bg-white p-8 rounded-[40px] border border-slate-200 h-fit sticky top-32 shadow-sm">
@@ -347,7 +341,7 @@ function App() {
                     <option value="">Choisir un ODD...</option>
                     {oddAverages.map(item => <option key={item.odd} value={item.odd}>{item.odd}</option>)}
                   </select>
-                  <textarea name="ideaText" placeholder="Votre proposition pour la commune..." rows="6" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-700 outline-none focus:border-blue-500" required></textarea>
+                  <textarea name="ideaText" placeholder="Votre proposition..." rows="6" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-700 outline-none focus:border-blue-500" required></textarea>
                   <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">Publier l'idée</button>
                 </form>
              </div>
@@ -363,13 +357,11 @@ function App() {
                       </div>
                     </div>
                   ))}
-                  {citizenIdeas.length === 0 && <p className="text-slate-400 italic">Aucune idée partagée pour le moment.</p>}
                 </div>
              </div>
           </div>
         )}
 
-        {/* CONTACT */}
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8 text-slate-600 text-xl font-light">
