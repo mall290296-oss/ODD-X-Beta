@@ -30,7 +30,6 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Définition de la clé de stockage dynamique
   const storageKey = useMemo(() => {
     const name = muralInfo["Nom de la commune"];
     return name 
@@ -87,9 +86,6 @@ function App() {
     const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
     if (allIdentities[profileName]) {
       setMuralInfo(allIdentities[profileName]);
-      const specificKey = `oddx_answers_${profileName.replace(/\s+/g, '_').toLowerCase()}`;
-      const savedAns = localStorage.getItem(specificKey);
-      setAnswers(savedAns ? JSON.parse(savedAns) : {});
     }
   };
 
@@ -114,6 +110,18 @@ function App() {
       setMuralInfo({});
       setAnswers({});
     }
+  };
+
+  const handleAddIdea = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newIdea = { 
+      odd: formData.get("oddSelection"), 
+      text: formData.get("ideaText"), 
+      date: new Date().toLocaleDateString() 
+    };
+    setCitizenIdeas([newIdea, ...citizenIdeas]);
+    e.target.reset();
   };
 
   // --- CALCULS ---
@@ -163,7 +171,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500">
       <nav className="border-b border-white/10 px-8 py-4 sticky top-0 bg-black/90 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <span className="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer" onClick={() => setActiveTab("Accueil")}>ODD-X</span>
@@ -176,6 +184,7 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
+        {/* ACCUEIL */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
@@ -184,20 +193,7 @@ function App() {
           </div>
         )}
 
-        {activeTab === "À Propos" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
-            <div className="space-y-8">
-              <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight">Notre Engagement</h2>
-              <p className="text-xl text-slate-300 leading-relaxed font-light">
-                ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.
-              </p>
-            </div>
-            <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
-              <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full opacity-80" />
-            </div>
-          </div>
-        )}
-
+        {/* DIAGNOSTIC */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
@@ -230,7 +226,7 @@ function App() {
                       <input 
                         value={muralInfo[field] || ""} 
                         onChange={(e) => setMuralInfo({...muralInfo, [field]: e.target.value})} 
-                        className={`bg-black border p-3 rounded-xl focus:border-blue-500 outline-none text-sm font-bold transition-all ${muralInfo[field] ? "border-green-500/30" : "border-white/10"}`} 
+                        className={`bg-black border p-3 rounded-xl focus:border-blue-500 outline-none text-sm font-bold transition-all ${muralInfo[field] ? "border-green-500/30 text-white" : "border-white/10 text-slate-400"}`} 
                       />
                     </div>
                   ))}
@@ -246,12 +242,17 @@ function App() {
           </div>
         )}
 
+        {/* QUESTIONNAIRE */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6 animate-in fade-in">
+             <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
+                <p className="text-sm font-black uppercase tracking-widest italic">Collectivité : {muralInfo["Nom de la commune"]}</p>
+                <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black uppercase text-white">Retour</button>
+            </div>
             {questions.map((q) => {
               const cleanedQuestionText = q.question.replace(/^Q\d+\s?[-–]\s?/, "");
               return (
-                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5">
+                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 transition-all">
                   <div className="flex gap-2 mb-4">
                     {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
                   </div>
@@ -261,7 +262,10 @@ function App() {
                       const points = idx === 5 ? 0 : idx + 1;
                       const isSelected = answers[q.id] === points;
                       return (
-                        <button key={idx} onClick={() => setAnswers({...answers, [q.id]: points})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-xs ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02]" : "opacity-80"} ${colorMap[opt.color] || "bg-slate-800"}`}>
+                        <button key={idx} onClick={() => setAnswers({...answers, [q.id]: points})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-xs flex items-center gap-3 ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02]" : "opacity-80"} ${colorMap[opt.color] || "bg-slate-800"}`}>
+                          <div className={`w-4 h-4 rounded-full border border-current shrink-0 flex items-center justify-center ${isSelected ? "bg-white" : ""}`}>
+                            {isSelected && <div className="w-2 h-2 bg-blue-600 rounded-full" />}
+                          </div>
                           {opt.text.replace(/^X\s/, "")}
                         </button>
                       );
@@ -274,6 +278,7 @@ function App() {
           </div>
         )}
 
+        {/* RÉSULTATS */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -292,6 +297,7 @@ function App() {
            </div>
         )}
 
+        {/* PRIORITÉS */}
         {activeTab === "Priorités" && (
           <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
@@ -301,7 +307,7 @@ function App() {
                 <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-blue-600 flex justify-between items-center shadow-lg">
                   <div className="space-y-2">
                     <div className="text-4xl font-black text-blue-600/40 italic uppercase leading-none">{item.odd}</div>
-                    <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif.</p>
+                    <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif de durabilité.</p>
                   </div>
                   <div className="text-right shrink-0 ml-8">
                     <p className="text-blue-500 font-black text-[10px] uppercase tracking-widest">Score</p>
@@ -309,15 +315,51 @@ function App() {
                   </div>
                 </div>
               ))}
-              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Excellent ! Tous vos ODD sont au-dessus de 4.0.</p>}
+              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Félicitations ! Tous vos ODD sont au-dessus de 4.0.</p>}
             </div>
           </div>
         )}
 
+        {/* CITOYENS (RÉINTÉGRÉ) */}
         {activeTab === "Citoyens" && (
-            <div className="text-center py-20 animate-in fade-in">
-                <h2 className="text-4xl font-black uppercase italic">Espace Citoyen</h2>
-                <p className="text-slate-500 mt-4">Module en cours de synchronisation...</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
+             <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32">
+                <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-500">Proposer une idée</h3>
+                <form onSubmit={handleAddIdea} className="space-y-4">
+                  <select name="oddSelection" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white font-bold outline-none focus:border-blue-500" required>
+                    <option value="">Choisir un ODD...</option>
+                    {oddAverages.map(item => <option key={item.odd} value={item.odd}>{item.odd}</option>)}
+                  </select>
+                  <textarea name="ideaText" placeholder="Votre proposition pour la commune..." rows="6" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white outline-none focus:border-blue-500" required></textarea>
+                  <button type="submit" className="w-full bg-blue-600 p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all text-white">Publier</button>
+                </form>
+             </div>
+             <div className="lg:col-span-2 space-y-6">
+                <h3 className="text-2xl font-black uppercase italic border-b border-white/10 pb-4 tracking-tighter">Boîte à idées citoyenne</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {citizenIdeas.map((idea, idx) => (
+                    <div key={idx} className="bg-white text-black p-6 rounded-3xl flex flex-col justify-between shadow-xl">
+                      <p className="font-bold leading-tight mb-4 italic text-lg">"{idea.text}"</p>
+                      <div className="flex justify-between items-center mt-4">
+                         <span className="bg-blue-600 text-white px-2 py-1 rounded text-[8px] font-black uppercase">{idea.odd}</span>
+                         <span className="text-[8px] font-black text-slate-400 uppercase">Le {idea.date}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {citizenIdeas.length === 0 && <p className="text-slate-500 italic">Aucune idée partagée pour le moment.</p>}
+                </div>
+             </div>
+          </div>
+        )}
+
+        {/* CONTACT & À PROPOS (SIMPLIFIÉS) */}
+        {activeTab === "À Propos" && (
+            <div className="py-12 max-w-3xl mx-auto space-y-8 animate-in fade-in">
+                <h2 className="text-6xl font-black italic uppercase underline decoration-blue-500">Notre Mission</h2>
+                <p className="text-xl text-slate-300 leading-relaxed">ODD-X est un outil de pilotage stratégique conçu pour aider les collectivités à évaluer leur contribution aux 17 Objectifs de Développement Durable (ODD). Notre méthodologie permet de transformer les données communales en actions concrètes pour un futur durable.</p>
+                <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
+                    <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full opacity-80" />
+                </div>
             </div>
         )}
 
@@ -325,13 +367,13 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8">
               <h2 className="text-7xl font-black uppercase italic underline decoration-blue-500 leading-tight">Contact</h2>
-              <div className="text-slate-300 text-xl font-light leading-relaxed">
-                <p className="font-bold">📍 Paris, France</p>
-                <p className="font-bold">✉️ info@odd-x.com</p>
+              <div className="text-slate-300 text-xl font-light space-y-4">
+                <p>📍 Paris, France</p>
+                <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold hover:text-blue-500">info@odd-x.com</a></p>
               </div>
             </div>
             <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4">
-              <input type="text" name="name" required placeholder="NOM COMPLET" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
+              <input type="text" name="name" required placeholder="NOM" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <input type="email" name="email" required placeholder="EMAIL" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <textarea name="message" required placeholder="MESSAGE..." rows="5" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold"></textarea>
               <button type="submit" className="w-full bg-blue-600 p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all text-white">Envoyer</button>
