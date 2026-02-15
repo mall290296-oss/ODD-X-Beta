@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
 
-// Mapping des couleurs du JSON vers Tailwind (avec contrastes adaptés)
+// Mapping des couleurs du JSON vers Tailwind
 const colorMap = {
   "rouge": "bg-red-600 text-white border-red-400 hover:bg-red-700",
   "orange": "bg-orange-500 text-white border-orange-300 hover:bg-orange-600",
@@ -15,20 +15,20 @@ const colorMap = {
 function App() {
   const [activeTab, setActiveTab] = useState("Accueil");
 
-  // --- LOGIQUE DE GESTION DES PROFILS ---
+  // --- LOGIQUE DE GESTION DES PROFILS & LOCALSTORAGE ---
   const [profiles, setProfiles] = useState(() => {
-    const saved = localStorage.getItem("sdgx_profiles_list");
+    const saved = localStorage.getItem("oddx_profiles_list");
     return saved ? JSON.parse(saved) : [];
   });
 
   const [muralInfo, setMuralInfo] = useState(() => {
-    const saved = localStorage.getItem("sdgx_current_identite");
+    const saved = localStorage.getItem("oddx_current_identite");
     return saved ? JSON.parse(saved) : {};
   });
 
   const storageKey = muralInfo["Nom de la commune"] 
-    ? `sdgx_answers_${muralInfo["Nom de la commune"].replace(/\s+/g, '_').toLowerCase()}`
-    : "sdgx_answers_default";
+    ? `oddx_answers_${muralInfo["Nom de la commune"].replace(/\s+/g, '_').toLowerCase()}`
+    : "oddx_answers_default";
 
   const [answers, setAnswers] = useState(() => {
     const saved = localStorage.getItem(storageKey);
@@ -36,11 +36,11 @@ function App() {
   });
 
   const [citizenIdeas, setCitizenIdeas] = useState(() => {
-    const saved = localStorage.getItem("sdgx_ideas");
+    const saved = localStorage.getItem("oddx_ideas");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // --- CONFIGURATION DES CHAMPS ---
+  // --- CONFIGURATION DES CHAMPS IDENTITÉ ---
   const identityFields = {
     "Informations Générales": ["Nom de la commune", "Email officiel", "Code Insee", "Code Postal", "Département", "Région", "Maire actuel", "Nombre d'élus", "Nombre d'agents municipaux"],
     "Démographie": ["Population totale", "Densité (hab/km²)", "Part des -25 ans (%)", "Part des +65 ans (%)", "Nombre de ménages"],
@@ -51,9 +51,33 @@ function App() {
 
   const allRequiredFields = Object.values(identityFields).flat();
 
-  // --- EFFETS ET HANDLERS ---
+  // --- EFFETS ---
+  useEffect(() => {
+    const savedAnswers = localStorage.getItem(storageKey);
+    setAnswers(savedAnswers ? JSON.parse(savedAnswers) : {});
+  }, [storageKey]);
+
+  useEffect(() => {
+    const name = muralInfo["Nom de la commune"];
+    localStorage.setItem("oddx_current_identite", JSON.stringify(muralInfo));
+    localStorage.setItem(storageKey, JSON.stringify(answers));
+    localStorage.setItem("oddx_ideas", JSON.stringify(citizenIdeas));
+
+    if (name && name.trim() !== "") {
+      if (!profiles.includes(name)) {
+        const newProfiles = [...profiles, name];
+        setProfiles(newProfiles);
+        localStorage.setItem("oddx_profiles_list", JSON.stringify(newProfiles));
+      }
+      const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
+      allIdentities[name] = muralInfo;
+      localStorage.setItem("oddx_all_identities", JSON.stringify(allIdentities));
+    }
+  }, [answers, muralInfo, citizenIdeas, storageKey, profiles]);
+
+  // --- ACTIONS ---
   const handleSwitchProfile = (profileName) => {
-    const allIdentities = JSON.parse(localStorage.getItem("sdgx_all_identities") || "{}");
+    const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
     if (allIdentities[profileName]) {
       setMuralInfo(allIdentities[profileName]);
     }
@@ -66,29 +90,6 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    const savedAnswers = localStorage.getItem(storageKey);
-    setAnswers(savedAnswers ? JSON.parse(savedAnswers) : {});
-  }, [storageKey]);
-
-  useEffect(() => {
-    const name = muralInfo["Nom de la commune"];
-    localStorage.setItem("sdgx_current_identite", JSON.stringify(muralInfo));
-    localStorage.setItem(storageKey, JSON.stringify(answers));
-    localStorage.setItem("sdgx_ideas", JSON.stringify(citizenIdeas));
-
-    if (name && name.trim() !== "") {
-      if (!profiles.includes(name)) {
-        const newProfiles = [...profiles, name];
-        setProfiles(newProfiles);
-        localStorage.setItem("sdgx_profiles_list", JSON.stringify(newProfiles));
-      }
-      const allIdentities = JSON.parse(localStorage.getItem("sdgx_all_identities") || "{}");
-      allIdentities[name] = muralInfo;
-      localStorage.setItem("sdgx_all_identities", JSON.stringify(allIdentities));
-    }
-  }, [answers, muralInfo, citizenIdeas, storageKey, profiles]);
-
   const resetAllData = () => {
     if (window.confirm("Attention : Cela effacera TOUTES les mairies enregistrées. Confirmer ?")) {
       localStorage.clear();
@@ -96,7 +97,7 @@ function App() {
     }
   };
 
-  // --- CALCULS DES SCORES ---
+  // --- CALCULS SCORES & GRAPHES ---
   const isFullyIdentified = useMemo(() => {
     return allRequiredFields.every(field => muralInfo[field] && muralInfo[field].toString().trim() !== "");
   }, [muralInfo, allRequiredFields]);
@@ -106,14 +107,11 @@ function App() {
     const counts = {};
     questions.forEach((q) => {
       const answer = answers[q.id];
-      if (answer !== undefined && answer !== null) {
-        // On ne compte pas les "Aucune donnée disponible" (val: 0) dans la moyenne
-        if (answer > 0) {
-          q.odds.forEach((odd) => {
-            scores[odd] = (scores[odd] || 0) + answer;
-            counts[odd] = (counts[odd] || 0) + 1;
-          });
-        }
+      if (answer !== undefined && answer !== null && answer > 0) {
+        q.odds.forEach((odd) => {
+          scores[odd] = (scores[odd] || 0) + answer;
+          counts[odd] = (counts[odd] || 0) + 1;
+        });
       }
     });
     const averages = Object.keys(scores).map((odd) => ({
@@ -127,15 +125,6 @@ function App() {
     };
   }, [answers]);
 
-  const handleAddIdea = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newIdea = { odd: formData.get("oddSelection"), text: formData.get("ideaText"), date: new Date().toLocaleDateString() };
-    setCitizenIdeas([newIdea, ...citizenIdeas]);
-    e.target.reset();
-  };
-
-  // --- CONFIGURATION GRAPHIQUE ---
   const chartOption = {
     backgroundColor: "transparent",
     tooltip: { trigger: "item", formatter: "<strong>{b}</strong><br/>Score : {c} / 4" },
@@ -153,11 +142,20 @@ function App() {
     }],
   };
 
+  const handleAddIdea = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newIdea = { odd: formData.get("oddSelection"), text: formData.get("ideaText"), date: new Date().toLocaleDateString() };
+    setCitizenIdeas([newIdea, ...citizenIdeas]);
+    e.target.reset();
+  };
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500">
+      {/* --- NAVIGATION --- */}
       <nav className="border-b border-white/10 px-8 py-4 sticky top-0 bg-black/90 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <span className="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer" onClick={() => setActiveTab("Accueil")}>SDG-X</span>
+          <span className="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer" onClick={() => setActiveTab("Accueil")}>ODD-X</span>
           <div className="flex gap-6 text-xs font-bold uppercase tracking-widest">
             {["Accueil", "À Propos", "Diagnostic", "Résultats", "Priorités", "Citoyens", "Contact"].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={`${activeTab === tab ? "text-blue-500 border-b-2 border-blue-500" : "hover:text-blue-400"} pb-1 transition-all`}>{tab}</button>
@@ -167,9 +165,10 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
+        {/* --- ACCUEIL --- */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
-            <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">SDG-X</h1>
+            <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
             <p className="text-2xl text-slate-400 max-w-2xl mx-auto font-light">Le diagnostic de durabilité pour les collectivités territoriales.</p>
             <div className="flex justify-center gap-6 pt-8">
               <button onClick={() => setActiveTab("Diagnostic")} className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-5 rounded-full font-black text-lg transition-all hover:scale-105">DÉMARRER</button>
@@ -178,7 +177,26 @@ function App() {
           </div>
         )}
 
-        {/* --- SECTION DIAGNOSTIC (IDENTITÉ) --- */}
+        {/* --- À PROPOS --- */}
+        {activeTab === "À Propos" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
+            <div className="space-y-8">
+              <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight">Notre Engagement</h2>
+              <p className="text-xl text-slate-300 leading-relaxed font-light">
+                ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients, inclusifs et respectueux des limites planétaires.
+              </p>
+              <div className="p-6 bg-slate-900/50 rounded-2xl border border-blue-500/30">
+                <p className="text-blue-400 font-bold tracking-widest uppercase text-xs mb-2">Méthodologie</p>
+                <p className="text-sm italic text-slate-400">Analyse basée sur les 17 indicateurs de performance des ODD.</p>
+              </div>
+            </div>
+            <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
+              <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full opacity-80" />
+            </div>
+          </div>
+        )}
+
+        {/* --- DIAGNOSTIC --- */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
@@ -226,7 +244,7 @@ function App() {
           </div>
         )}
 
-        {/* --- SECTION QUESTIONNAIRE (AVEC COULEURS) --- */}
+        {/* --- QUESTIONNAIRE --- */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6">
             <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg shadow-blue-500/20">
@@ -240,17 +258,17 @@ function App() {
                     <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>
                   ))}
                 </div>
-                <p className="text-xl font-bold mb-6">{q.question}</p>
+                <p className="text-xl font-bold mb-6">{q.id}. {q.question}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {q.options.map((opt, idx) => {
                     const isSelected = answers[q.id] === opt.val;
-                    const cleanedText = opt.text.replace(/^X\s/, ""); // Nettoie le "X " si présent
+                    const cleanedText = opt.text.replace(/^X\s/, "");
                     
                     return (
                       <button
                         key={idx}
                         onClick={() => setAnswers({...answers, [q.id]: opt.val})}
-                        className={`p-4 rounded-xl border text-left transition-all relative flex items-center gap-3 font-bold uppercase text-xs
+                        className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 font-bold uppercase text-xs
                           ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02] z-10" : "opacity-80 hover:opacity-100"}
                           ${colorMap[opt.color] || "bg-slate-800 text-white border-white/10"}
                         `}
@@ -269,7 +287,7 @@ function App() {
           </div>
         )}
 
-        {/* --- AUTRES SECTIONS (RÉSULTATS, PRIORITÉS, ETC.) --- */}
+        {/* --- RÉSULTATS --- */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -288,6 +306,7 @@ function App() {
            </div>
         )}
 
+        {/* --- PRIORITÉS --- */}
         {activeTab === "Priorités" && (
           <div className="space-y-8">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
@@ -309,6 +328,7 @@ function App() {
           </div>
         )}
 
+        {/* --- CITOYENS --- */}
         {activeTab === "Citoyens" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
              <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32 shadow-xl">
@@ -319,7 +339,7 @@ function App() {
                     {oddAverages.map(item => <option key={item.odd} value={item.odd}>{item.odd}</option>)}
                   </select>
                   <textarea name="ideaText" placeholder="Proposition citoyenne..." rows="6" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white outline-none focus:border-blue-500" required></textarea>
-                  <button type="submit" className="w-full bg-blue-600 p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg text-white">Publier sur le mur</button>
+                  <button type="submit" className="w-full bg-blue-600 p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg text-white">Publier</button>
                 </form>
              </div>
              <div className="lg:col-span-2 space-y-6">
@@ -339,17 +359,18 @@ function App() {
           </div>
         )}
 
+        {/* --- CONTACT --- */}
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8">
               <h2 className="text-7xl font-black uppercase italic underline decoration-blue-500 leading-tight">Contact</h2>
-              <p className="text-slate-500 text-xl font-light italic leading-relaxed">Une question ? Un besoin d'accompagnement spécifique ? Notre équipe vous répond sous 48h.</p>
+              <p className="text-slate-500 text-xl font-light italic leading-relaxed">Une question ? Notre équipe vous répond sous 48h.</p>
             </div>
             <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4 shadow-2xl">
-              <input type="text" name="name" required placeholder="NOM COMPLET" className="w-full bg-black border border-white/10 p-6 rounded-2xl outline-none focus:border-blue-500 font-bold text-white" />
-              <input type="email" name="email" required placeholder="EMAIL@EXEMPLE.COM" className="w-full bg-black border border-white/10 p-6 rounded-2xl outline-none focus:border-blue-500 font-bold text-white" />
-              <textarea name="message" required placeholder="MESSAGE..." rows="5" className="w-full bg-black border border-white/10 p-6 rounded-2xl outline-none focus:border-blue-500 font-bold text-white"></textarea>
-              <button type="submit" className="w-full bg-blue-600 p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 text-white">Envoyer</button>
+              <input type="text" name="name" required placeholder="NOM COMPLET" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
+              <input type="email" name="email" required placeholder="EMAIL" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
+              <textarea name="message" required placeholder="MESSAGE..." rows="5" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold"></textarea>
+              <button type="submit" className="w-full bg-blue-600 p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all text-white">Envoyer</button>
             </form>
           </div>
         )}
