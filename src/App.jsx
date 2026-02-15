@@ -11,25 +11,24 @@ const colorMap = {
   "blanc": "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
 };
 
-// Sources alternatives stables pour les icônes officielles (Wikimedia)
 const oddIcons = {
-  "ODD 1": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Sustainable_Development_Goal_1.svg/1200px-Sustainable_Development_Goal_1.svg.png",
-  "ODD 2": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Sustainable_Development_Goal_2.svg/1200px-Sustainable_Development_Goal_2.svg.png",
-  "ODD 3": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Sustainable_Development_Goal_3.svg/1200px-Sustainable_Development_Goal_3.svg.png",
-  "ODD 4": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Sustainable_Development_Goal_4.svg/1200px-Sustainable_Development_Goal_4.svg.png",
-  "ODD 5": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sustainable_Development_Goal_5.svg/1200px-Sustainable_Development_Goal_5.svg.png",
-  "ODD 6": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Sustainable_Development_Goal_6.svg/1200px-Sustainable_Development_Goal_6.svg.png",
-  "ODD 7": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Sustainable_Development_Goal_7.svg/1200px-Sustainable_Development_Goal_7.svg.png",
-  "ODD 8": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Sustainable_Development_Goal_8.svg/1200px-Sustainable_Development_Goal_8.svg.png",
-  "ODD 9": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Sustainable_Development_Goal_9.svg/1200px-Sustainable_Development_Goal_9.svg.png",
-  "ODD 10": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Sustainable_Development_Goal_10.svg/1200px-Sustainable_Development_Goal_10.svg.png",
-  "ODD 11": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Sustainable_Development_Goal_11.svg/1200px-Sustainable_Development_Goal_11.svg.png",
-  "ODD 12": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Sustainable_Development_Goal_12.svg/1200px-Sustainable_Development_Goal_12.svg.png",
-  "ODD 13": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Sustainable_Development_Goal_13.svg/1200px-Sustainable_Development_Goal_13.svg.png",
-  "ODD 14": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Sustainable_Development_Goal_14.svg/1200px-Sustainable_Development_Goal_14.svg.png",
-  "ODD 15": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Sustainable_Development_Goal_15.svg/1200px-Sustainable_Development_Goal_15.svg.png",
-  "ODD 16": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Sustainable_Development_Goal_16.svg/1200px-Sustainable_Development_Goal_16.svg.png",
-  "ODD 17": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Sustainable_Development_Goal_17.svg/1200px-Sustainable_Development_Goal_17.svg.png"
+  "ODD 1": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_01.jpg",
+  "ODD 2": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_02.jpg",
+  "ODD 3": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_03.jpg",
+  "ODD 4": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_04.jpg",
+  "ODD 5": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_05.jpg",
+  "ODD 6": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_06.jpg",
+  "ODD 7": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_07.jpg",
+  "ODD 8": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_08.jpg",
+  "ODD 9": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_09.jpg",
+  "ODD 10": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_10.jpg",
+  "ODD 11": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_11.jpg",
+  "ODD 12": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_12.jpg",
+  "ODD 13": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_13.jpg",
+  "ODD 14": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_14.jpg",
+  "ODD 15": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_15.jpg",
+  "ODD 16": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_16.jpg",
+  "ODD 17": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_17.jpg"
 };
 
 const oddDescriptions = {
@@ -161,7 +160,7 @@ function App() {
         const icon = oddIcons[params.name] || "";
         return `
           <div style="max-width:280px; white-space:normal; display:flex; gap:12px; align-items:flex-start;">
-            <img src="${icon}" style="width:50px; height:50px; border-radius:6px; object-fit:contain;" />
+            <img src="${icon}" style="width:50px; height:50px; border-radius:6px; border:1px solid #f1f5f9;" />
             <div style="flex:1;">
               <div style="font-weight:900; color:#2563eb; margin-bottom:2px; font-size:14px;">${params.name}</div>
               <div style="font-weight:bold; font-size:12px; margin-bottom:6px;">Score : ${params.value} / 5</div>
@@ -208,11 +207,25 @@ function App() {
           </div>
         )}
 
-        {/* Section À Propos, Diagnostic, Questionnaire omis par brièveté mais restent identiques à votre version */}
-        
+        {activeTab === "À Propos" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
+            <div className="space-y-8">
+              <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight text-slate-900">Notre Engagement</h2>
+              <p className="text-xl text-slate-600 leading-relaxed font-light">ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.</p>
+              <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100 shadow-sm">
+                <p className="text-blue-600 font-bold tracking-widest uppercase text-xs mb-2">Méthodologie</p>
+                <p className="text-sm italic text-slate-500">Analyse basée sur les 17 indicateurs de performance des ODD.</p>
+              </div>
+            </div>
+            <div className="rounded-[40px] overflow-hidden border border-slate-200 shadow-2xl">
+              <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full grayscale hover:grayscale-0 transition-all duration-700" />
+            </div>
+          </div>
+        )}
+
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
-             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
               <div className="flex flex-col sm:flex-row items-end gap-4">
                 <div>
                   <h3 className="text-blue-600 font-black uppercase text-[10px] tracking-widest">Sélectionner une Mairie</h3>
@@ -244,7 +257,33 @@ function App() {
           </div>
         )}
 
-        {/* Section Résultats avec icônes fonctionnelles */}
+        {activeTab === "Questionnaire" && (
+          <div className="space-y-6 animate-in fade-in">
+             <div className="bg-white border border-slate-200 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-sm">
+                <p className="text-sm font-black uppercase tracking-widest text-blue-600 italic">Collectivité : {muralInfo["Nom de la commune"]}</p>
+                <button onClick={() => setActiveTab("Diagnostic")} className="bg-slate-100 px-4 py-1 rounded-full text-[10px] font-black uppercase text-slate-600 hover:bg-slate-200">Retour</button>
+            </div>
+            {questions.map((q) => (
+              <div key={q.id} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm transition-all">
+                <div className="flex gap-2 mb-4">{q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}</div>
+                <p className="text-xl font-bold mb-6 text-slate-800">{q.id}. {q.question.replace(/^Q\d+\s?[-–]\s?/, "")}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {q.options.map((opt, idx) => {
+                    const pts = idx === 5 ? 0 : idx + 1; const sel = answers[q.id] === pts;
+                    return (
+                      <button key={idx} onClick={() => setAnswers({...answers, [q.id]: pts})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-[11px] flex items-center gap-3 ${sel ? "ring-4 ring-blue-100 border-blue-400 scale-[1.01]" : "opacity-90"} ${colorMap[opt.color] || "bg-slate-50"}`}>
+                        <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0 flex items-center justify-center bg-white">{sel && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}</div>
+                        {opt.text.replace(/^X\s/, "")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <button onClick={() => setActiveTab("Résultats")} className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase mt-10 shadow-xl shadow-blue-200 transition-all hover:bg-blue-700">Calculer les résultats</button>
+          </div>
+        )}
+
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-slate-200 pb-8 uppercase">
@@ -263,7 +302,6 @@ function App() {
            </div>
         )}
 
-        {/* Section PRIORITÉS - MODIFIÉE avec le texte générique */}
         {activeTab === "Priorités" && (
           <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Priorités stratégiques</h2>
@@ -274,13 +312,10 @@ function App() {
                 return (
                   <div key={item.odd} className={`bg-white p-8 rounded-[30px] border-l-[20px] ${visuals.twBorder} flex justify-between items-center shadow-md border border-slate-200 transition-all hover:shadow-lg`}>
                     <div className="flex items-center gap-8">
-                      <img src={oddIcons[item.odd]} alt={item.odd} className="w-24 h-24 rounded-xl shadow-sm border border-slate-50 object-contain" />
+                      <img src={oddIcons[item.odd]} alt={item.odd} className="w-20 h-20 rounded-xl shadow-sm border border-slate-50" />
                       <div className="space-y-2">
-                        <div className={`text-4xl font-black ${visuals.twText} italic uppercase leading-none`}>{item.odd}</div>
-                        {/* TEXTE GÉNÉRIQUE DEMANDÉ */}
-                        <p className="text-lg font-bold text-slate-700 max-w-xl">
-                          Cet objectif nécessite une révision immédiate de vos politiques publiques afin de garantir leur conformité avec les ODD.
-                        </p>
+                        <div className={`text-5xl font-black ${visuals.twText} italic uppercase leading-none`}>{item.odd}</div>
+                        <p className="text-lg font-bold text-slate-700">{oddDescriptions[item.odd]}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0 ml-8">
@@ -292,6 +327,52 @@ function App() {
               })}
               {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic text-slate-400">Félicitations ! Tous vos ODD sont au-dessus de 4.0.</p>}
             </div>
+          </div>
+        )}
+
+        {activeTab === "Citoyens" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
+             <div className="lg:col-span-1 bg-white p-8 rounded-[40px] border border-slate-200 h-fit sticky top-32 shadow-sm">
+                <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-600">Proposer une idée</h3>
+                <form onSubmit={handleAddIdea} className="space-y-4">
+                  <select name="oddSelection" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-700 font-bold outline-none focus:border-blue-500" required>
+                    <option value="">Choisir un ODD...</option>
+                    {Object.keys(oddDescriptions).map(odd => <option key={odd} value={odd}>{odd}</option>)}
+                  </select>
+                  <textarea name="ideaText" placeholder="Votre proposition..." rows="6" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-700 outline-none focus:border-blue-500" required></textarea>
+                  <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">Publier l'idée</button>
+                </form>
+             </div>
+             <div className="lg:col-span-2 space-y-6">
+                <h3 className="text-2xl font-black uppercase italic border-b border-slate-200 pb-4 tracking-tighter text-slate-900">Boîte à idées citoyenne</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {citizenIdeas.map((idea, idx) => (
+                    <div key={idx} className="bg-white text-slate-800 p-6 rounded-3xl border border-slate-200 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                      <p className="font-bold leading-tight mb-4 italic text-lg text-slate-700">"{idea.text}"</p>
+                      <div className="flex justify-between items-center mt-4">
+                         <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">{idea.odd}</span>
+                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Le {idea.date}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+             </div>
+          </div>
+        )}
+
+        {activeTab === "Contact" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
+            <div className="space-y-8 text-slate-600 text-xl font-light">
+              <h2 className="text-7xl font-black uppercase italic underline decoration-blue-500 leading-tight text-slate-900">Contact</h2>
+              <p>📍 Paris, France</p>
+              <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold text-blue-600 hover:underline">info@odd-x.com</a></p>
+            </div>
+            <form action="#" className="bg-white p-12 rounded-[50px] border border-slate-200 space-y-4 shadow-xl shadow-slate-200/50">
+              <input type="text" placeholder="NOM" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl text-slate-800 outline-none focus:border-blue-500 font-bold" />
+              <input type="email" placeholder="EMAIL" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl text-slate-800 outline-none focus:border-blue-500 font-bold" />
+              <textarea placeholder="MESSAGE..." rows="5" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl text-slate-800 outline-none focus:border-blue-500 font-bold"></textarea>
+              <button type="button" className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">Envoyer</button>
+            </form>
           </div>
         )}
       </div>
