@@ -33,22 +33,22 @@ const oddIcons = {
 
 const oddDescriptions = {
   "ODD 1": "Mettre fin à la pauvreté sous toutes ses formes et partout.",
-  "ODD 2": "Éliminer la faim, assurer la sécurité alimentaire, améliorer la nutrition et promouvoir une agriculture durable.",
+  "ODD 2": "Éliminer la faim, assurer la sécurité alimentaire et promouvoir une agriculture durable.",
   "ODD 3": "Permettre à tous de vivre en bonne santé et promouvoir le bien‑être à tout âge.",
-  "ODD 4": "Assurer à tous une éducation inclusive, équitable et de qualité et des possibilités d’apprentissage tout au long de la vie.",
+  "ODD 4": "Assurer à tous une éducation inclusive, équitable et de qualité.",
   "ODD 5": "Parvenir à l’égalité des sexes et autonomiser toutes les femmes et les filles.",
-  "ODD 6": "Garantir l’accès de tous à l’eau et à l’assainissement et assurer une gestion durable des ressources en eau.",
-  "ODD 7": "Garantir l’accès de tous à des services énergétiques fiables, durables et modernes, à un coût abordable.",
-  "ODD 8": "Promouvoir une croissance économique soutenue, inclusive et durable, le plein emploi productif et un travail décent pour tous.",
-  "ODD 9": "Bâtir une infrastructure résiliente, promouvoir une industrialisation durable qui profite à tous et encourager l’innovation.",
+  "ODD 6": "Garantir l’accès de tous à l’eau et à l’assainissement.",
+  "ODD 7": "Garantir l’accès de tous à des services énergétiques fiables, durables et modernes.",
+  "ODD 8": "Promouvoir une croissance économique durable et un travail décent pour tous.",
+  "ODD 9": "Bâtir une infrastructure résiliente et encourager l’innovation.",
   "ODD 10": "Réduire les inégalités dans les pays et d’un pays à l’autre.",
-  "ODD 11": "Faire en sorte que les villes et les établissements humains soient ouverts à tous, sûrs, résilients et durables.",
+  "ODD 11": "Faire en sorte que les villes soient sûres, résilientes et durables.",
   "ODD 12": "Instaurer des modes de consommation et de production durables.",
-  "ODD 13": "Prendre d’urgence des mesures pour lutter contre les changements climatiques et leurs répercussions.",
-  "ODD 14": "Conserver et exploiter de manière durable les océans, les mers et les ressources marines.",
-  "ODD 15": "Préserver et restaurer les écosystèmes terrestres, gérer durablement les forêts, lutter contre la désertification, enrayer et inverser la dégradation des terres et mettre fin à la perte de biodiversité.",
-  "ODD 16": "Promouvoir l’avènement de sociétés pacifiques et ouvertes à tous, assurer l’accès de tous à la justice et mettre en place des institutions efficaces, responsables et ouvertes.",
-  "ODD 17": "Renforcer les moyens de mettre en œuvre le Partenariat mondial pour le développement durable et le revitaliser."
+  "ODD 13": "Prendre d’urgence des mesures pour lutter contre les changements climatiques.",
+  "ODD 14": "Conserver et exploiter de manière durable les ressources marines.",
+  "ODD 15": "Préserver et restaurer les écosystèmes terrestres et la biodiversité.",
+  "ODD 16": "Promouvoir l’avènement de sociétés pacifiques et l’accès à la justice pour tous.",
+  "ODD 17": "Renforcer le Partenariat mondial pour le développement durable."
 };
 
 const getScoreVisuals = (score) => {
@@ -66,6 +66,7 @@ function App() {
   const [profiles, setProfiles] = useState(() => JSON.parse(localStorage.getItem("oddx_profiles_list") || "[]"));
   const [muralInfo, setMuralInfo] = useState(() => JSON.parse(localStorage.getItem("oddx_current_identite") || "{}"));
   const [citizenIdeas, setCitizenIdeas] = useState(() => JSON.parse(localStorage.getItem("oddx_ideas") || "[]"));
+  const [selectedOddForm, setSelectedOddForm] = useState("");
 
   const storageKey = useMemo(() => {
     const name = muralInfo["Nom de la commune"];
@@ -183,8 +184,9 @@ function App() {
   const handleAddIdea = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    setCitizenIdeas([{ odd: formData.get("oddSelection"), text: formData.get("ideaText"), date: new Date().toLocaleDateString() }, ...citizenIdeas]);
+    setCitizenIdeas([{ odd: selectedOddForm, text: formData.get("ideaText"), date: new Date().toLocaleDateString() }, ...citizenIdeas]);
     e.target.reset();
+    setSelectedOddForm("");
   };
 
   return (
@@ -224,11 +226,12 @@ function App() {
         )}
 
         {activeTab === "À Propos" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in">
             <div className="space-y-8">
               <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight text-slate-900">Notre Engagement</h2>
               <p className="text-xl text-slate-600 leading-relaxed font-light">ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.</p>
             </div>
+            {/* Effet de glissement enlevé ici */}
             <div className="rounded-[40px] overflow-hidden border border-slate-200 shadow-2xl">
               <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full grayscale hover:grayscale-0 transition-all duration-700" />
             </div>
@@ -237,7 +240,6 @@ function App() {
 
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
-             {/* Gestion des profils et champs d'identité */}
              <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
               <div className="flex flex-col sm:flex-row items-end gap-4">
                 <div>
@@ -366,7 +368,8 @@ function App() {
               {[
                 { name: "ADEME", full: "Agence de la transition écologique", desc: "Expertise technique et financements pour les projets de transition énergétique et d'économie circulaire.", link: "https://www.ademe.fr" },
                 { name: "FVD", full: "France Villes et Territoires Durables", desc: "Fédération des acteurs de la ville durable pour accélérer le déploiement des ODD à l'échelle locale.", link: "https://francevilledurable.fr/" },
-                { name: "Club DD", full: "Le club développement durable", desc: "Réseau d'échange pour les établissements et entreprises publics sur les enjeux de durabilité.", link: "https://www.ecologie.gouv.fr/politiques-publiques-developpement-durable" },
+                // Lien mis à jour ici
+                { name: "Club DD", full: "Le club développement durable", desc: "Réseau d'échange pour les établissements et entreprises publics sur les enjeux de durabilité.", link: "https://www.ecologie.gouv.fr/politiques-publiques/club-developpement-durable-etablissements-entreprises-publics" },
                 { name: "ANCT", full: "Agence Nationale de la Cohésion des Territoires", desc: "Support aux mairies dans leurs projets de revitalisation et de cohésion territoriale.", link: "https://agence-cohesion-territoires.gouv.fr" }
               ].map((inst, i) => (
                 <div key={i} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm hover:shadow-xl transition-all">
@@ -384,22 +387,46 @@ function App() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 animate-in fade-in">
              <div className="lg:col-span-1 bg-white p-8 rounded-[40px] border border-slate-200 h-fit shadow-sm">
                 <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-600">Proposer une idée</h3>
+                
+                {/* Visualisation de l'ODD sélectionné */}
+                {selectedOddForm && (
+                  <div className="flex items-center gap-4 mb-6 p-4 bg-slate-50 rounded-2xl animate-in zoom-in-95">
+                    <img src={oddIcons[selectedOddForm]} alt="" className="w-16 h-16 rounded-lg" />
+                    <p className="text-xs font-bold text-slate-600">{oddDescriptions[selectedOddForm]}</p>
+                  </div>
+                )}
+
                 <form onSubmit={handleAddIdea} className="space-y-4">
-                  <select name="oddSelection" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold" required>
+                  <select 
+                    value={selectedOddForm}
+                    onChange={(e) => setSelectedOddForm(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" 
+                    required
+                  >
                     <option value="">Choisir un ODD...</option>
-                    {Object.keys(oddDescriptions).map(odd => <option key={odd} value={odd}>{odd}</option>)}
+                    {Object.keys(oddDescriptions).map(odd => (
+                      <option key={odd} value={odd}>
+                        {odd} - {oddDescriptions[odd].substring(0, 40)}...
+                      </option>
+                    ))}
                   </select>
-                  <textarea name="ideaText" placeholder="Votre proposition..." rows="6" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl" required></textarea>
-                  <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase shadow-lg shadow-blue-100">Publier l'idée</button>
+                  <textarea name="ideaText" placeholder="Votre proposition..." rows="6" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none focus:ring-2 focus:ring-blue-100" required></textarea>
+                  <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">Publier l'idée</button>
                 </form>
              </div>
              <div className="lg:col-span-2 space-y-6">
                 <h3 className="text-2xl font-black uppercase italic border-b border-slate-200 pb-4 text-slate-900">Boîte à idées citoyenne</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {citizenIdeas.map((idea, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                      <p className="font-bold mb-4 italic text-slate-700">"{idea.text}"</p>
-                      <div className="flex justify-between items-center"><span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">{idea.odd}</span><span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Le {idea.date}</span></div>
+                    <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                      <div className="flex gap-4 mb-4">
+                         <img src={oddIcons[idea.odd]} alt="" className="w-10 h-10 rounded-md shrink-0" />
+                         <p className="font-bold italic text-slate-700 leading-tight">"{idea.text}"</p>
+                      </div>
+                      <div className="flex justify-between items-center mt-auto border-t border-slate-50 pt-4">
+                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">{idea.odd}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Le {idea.date}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
