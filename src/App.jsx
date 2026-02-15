@@ -12,23 +12,23 @@ const colorMap = {
 };
 
 const oddIcons = {
-  "ODD 1": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_01.jpg",
-  "ODD 2": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_02.jpg",
-  "ODD 3": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_03.jpg",
-  "ODD 4": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_04.jpg",
-  "ODD 5": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_05.jpg",
-  "ODD 6": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_06.jpg",
-  "ODD 7": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_07.jpg",
-  "ODD 8": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_08.jpg",
-  "ODD 9": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_09.jpg",
-  "ODD 10": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_10.jpg",
-  "ODD 11": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_11.jpg",
-  "ODD 12": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_12.jpg",
-  "ODD 13": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_13.jpg",
-  "ODD 14": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_14.jpg",
-  "ODD 15": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_15.jpg",
-  "ODD 16": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_16.jpg",
-  "ODD 17": "https://www.un.org/sustainabledevelopment/fr/wp-content/uploads/sites/2/2019/08/F_SDG_Icons_2019_17.jpg"
+  "ODD 1": "https://www.agenda-2030.fr/IMG/svg/odd1.svg?1614036680",
+  "ODD 2": "https://www.agenda-2030.fr/IMG/svg/odd2.svg?1614036681",
+  "ODD 3": "https://www.agenda-2030.fr/IMG/svg/odd3.svg?1614036681",
+  "ODD 4": "https://www.agenda-2030.fr/IMG/svg/odd4.svg?1614036681",
+  "ODD 5": "https://www.agenda-2030.fr/IMG/svg/odd5.svg?1614036682",
+  "ODD 6": "https://www.agenda-2030.fr/IMG/svg/odd6.svg?1614036682",
+  "ODD 7": "https://www.agenda-2030.fr/IMG/svg/odd7.svg?1614036682",
+  "ODD 8": "https://www.agenda-2030.fr/IMG/svg/odd8.svg?1614036682",
+  "ODD 9": "https://www.agenda-2030.fr/IMG/svg/odd9.svg?1614036682",
+  "ODD 10": "https://www.agenda-2030.fr/IMG/svg/odd10.svg?1614036681",
+  "ODD 11": "https://www.agenda-2030.fr/IMG/svg/odd11.svg?1614036681",
+  "ODD 12": "https://www.agenda-2030.fr/IMG/svg/odd12.svg?1614036681",
+  "ODD 13": "https://www.agenda-2030.fr/IMG/svg/odd13.svg?1614036681",
+  "ODD 14": "https://www.agenda-2030.fr/IMG/svg/odd14.svg?1614036681",
+  "ODD 15": "https://www.agenda-2030.fr/IMG/svg/odd15.svg?1614036681",
+  "ODD 16": "https://www.agenda-2030.fr/IMG/svg/odd16.svg?1614036681",
+  "ODD 17": "https://www.agenda-2030.fr/IMG/svg/odd17.svg?1614036681"
 };
 
 const oddDescriptions = {
