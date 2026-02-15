@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
 
-// Mapping des couleurs mis à jour selon vos instructions
+// Mapping des couleurs mis à jour
 const colorMap = {
   "rouge": "bg-red-600 text-white border-red-400 hover:bg-red-700",
   "orange": "bg-orange-500 text-white border-orange-300 hover:bg-orange-600",
@@ -104,7 +104,6 @@ function App() {
     const counts = {};
     questions.forEach((q) => {
       const answerVal = answers[q.id];
-      // On ne compte que les scores entre 1 et 5 pour la moyenne par ODD
       if (answerVal !== undefined && answerVal !== null && answerVal > 0) {
         q.odds.forEach((odd) => {
           scores[odd] = (scores[odd] || 0) + answerVal;
@@ -163,7 +162,6 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* ACCUEIL */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
@@ -175,7 +173,6 @@ function App() {
           </div>
         )}
 
-        {/* À PROPOS */}
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
             <div className="space-y-8">
@@ -194,7 +191,6 @@ function App() {
           </div>
         )}
 
-        {/* DIAGNOSTIC */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
@@ -242,7 +238,7 @@ function App() {
           </div>
         )}
 
-        {/* QUESTIONNAIRE - CORRECTIONS ICI */}
+        {/* QUESTIONNAIRE - POINTS MASQUÉS & NETTOYAGE COMPLET */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6">
             <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
@@ -250,7 +246,8 @@ function App() {
                 <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black uppercase text-white">Modifier</button>
             </div>
             {questions.map((q) => {
-              const cleanedQuestionText = q.question.replace(/^Q\d+\s?-\s?/, "");
+              // NETTOYAGE DYNAMIQUE (Gère Q1, Q47, tirets courts et longs)
+              const cleanedQuestionText = q.question.replace(/^Q\d+\s?[-–]\s?/, "");
               return (
                 <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 transition-all">
                   <div className="flex gap-2 mb-4">
@@ -261,7 +258,6 @@ function App() {
                   <p className="text-xl font-bold mb-6">{q.id}. {cleanedQuestionText}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {q.options.map((opt, idx) => {
-                      // ATTRIBUTION DES POINTS : 1, 2, 3, 4, 5 ou 0 (si c'est la 6ème option)
                       const points = idx === 5 ? 0 : idx + 1;
                       const isSelected = answers[q.id] === points;
                       const cleanedOptionText = opt.text.replace(/^X\s/, "");
@@ -278,10 +274,7 @@ function App() {
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "bg-white border-white" : "border-current opacity-30"}`}>
                              {isSelected && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
                           </div>
-                          <div className="flex justify-between items-center w-full">
-                            <span>{cleanedOptionText}</span>
-                            <span className="text-[9px] opacity-60 ml-2">({points} pts)</span>
-                          </div>
+                          <span>{cleanedOptionText}</span>
                         </button>
                       );
                     })}
