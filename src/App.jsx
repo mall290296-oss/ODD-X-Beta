@@ -40,7 +40,6 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // --- CONFIGURATION DES CHAMPS IDENTITÉ ---
   const identityFields = {
     "Informations Générales": ["Nom de la commune", "Email officiel", "Code Insee", "Code Postal", "Département", "Région", "Maire actuel", "Nombre d'élus", "Nombre d'agents municipaux"],
     "Démographie": ["Population totale", "Densité (hab/km²)", "Part des -25 ans (%)", "Part des +65 ans (%)", "Nombre de ménages"],
@@ -51,7 +50,6 @@ function App() {
 
   const allRequiredFields = Object.values(identityFields).flat();
 
-  // --- EFFETS ---
   useEffect(() => {
     const savedAnswers = localStorage.getItem(storageKey);
     setAnswers(savedAnswers ? JSON.parse(savedAnswers) : {});
@@ -75,7 +73,6 @@ function App() {
     }
   }, [answers, muralInfo, citizenIdeas, storageKey, profiles]);
 
-  // --- ACTIONS ---
   const handleSwitchProfile = (profileName) => {
     const allIdentities = JSON.parse(localStorage.getItem("oddx_all_identities") || "{}");
     if (allIdentities[profileName]) {
@@ -97,7 +94,7 @@ function App() {
     }
   };
 
-  // --- CALCULS SCORES & GRAPHES ---
+  // --- CALCULS SCORES ---
   const isFullyIdentified = useMemo(() => {
     return allRequiredFields.every(field => muralInfo[field] && muralInfo[field].toString().trim() !== "");
   }, [muralInfo, allRequiredFields]);
@@ -107,7 +104,7 @@ function App() {
     const counts = {};
     questions.forEach((q) => {
       const answerVal = answers[q.id];
-      // On ne compte la réponse que si elle est supérieure à 0 (Option 6 = 0 point n'est pas comptée dans la moyenne)
+      // On ne compte que les scores entre 1 et 5 pour la moyenne par ODD
       if (answerVal !== undefined && answerVal !== null && answerVal > 0) {
         q.odds.forEach((odd) => {
           scores[odd] = (scores[odd] || 0) + answerVal;
@@ -122,7 +119,7 @@ function App() {
     return {
       oddAverages: averages.sort((a, b) => a.odd.localeCompare(b.odd, undefined, {numeric: true})),
       globalScore: averages.length > 0 ? (averages.reduce((acc, item) => acc + item.value, 0) / averages.length).toFixed(2) : 0,
-      lowPerformingODDs: averages.filter(item => item.value < 3.0) // Seuil de vigilance ajusté à 3/5
+      lowPerformingODDs: averages.filter(item => item.value < 3.0)
     };
   }, [answers]);
 
@@ -134,11 +131,11 @@ function App() {
       itemStyle: { borderRadius: 4, borderColor: "#000", borderWidth: 2 },
       label: { show: true, color: "#fff", fontSize: 10 },
       data: oddAverages.map((item) => {
-        let color = "#ef4444"; // Rouge (< 2)
-        if (item.value >= 2) color = "#f97316"; // Orange
-        if (item.value >= 3) color = "#eab308"; // Jaune
-        if (item.value >= 4) color = "#4ade80"; // Vert clair
-        if (item.value >= 4.5) color = "#15803d"; // Vert foncé
+        let color = "#ef4444"; 
+        if (item.value >= 2) color = "#f97316"; 
+        if (item.value >= 3) color = "#eab308"; 
+        if (item.value >= 4) color = "#4ade80"; 
+        if (item.value >= 4.5) color = "#15803d"; 
         return { value: item.value, name: item.odd, itemStyle: { color } };
       }),
     }],
@@ -154,7 +151,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500">
-      {/* --- NAVIGATION --- */}
       <nav className="border-b border-white/10 px-8 py-4 sticky top-0 bg-black/90 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <span className="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer" onClick={() => setActiveTab("Accueil")}>ODD-X</span>
@@ -167,7 +163,7 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* --- ACCUEIL --- */}
+        {/* ACCUEIL */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
@@ -179,7 +175,7 @@ function App() {
           </div>
         )}
 
-        {/* --- À PROPOS --- */}
+        {/* À PROPOS */}
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in slide-in-from-left-10">
             <div className="space-y-8">
@@ -198,7 +194,7 @@ function App() {
           </div>
         )}
 
-        {/* --- DIAGNOSTIC --- */}
+        {/* DIAGNOSTIC */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
@@ -246,17 +242,17 @@ function App() {
           </div>
         )}
 
-        {/* --- QUESTIONNAIRE (POINTS MIS À JOUR) --- */}
+        {/* QUESTIONNAIRE - CORRECTIONS ICI */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6">
-            <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg shadow-blue-500/20">
+            <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
                 <p className="text-sm font-black uppercase tracking-widest italic">Collectivité : {muralInfo["Nom de la commune"]}</p>
-                <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black hover:bg-black/40 uppercase text-white">Modifier l'identité</button>
+                <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black uppercase text-white">Modifier</button>
             </div>
             {questions.map((q) => {
               const cleanedQuestionText = q.question.replace(/^Q\d+\s?-\s?/, "");
               return (
-                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 hover:border-blue-500/10 transition-all">
+                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 transition-all">
                   <div className="flex gap-2 mb-4">
                     {q.odds.map(o => (
                       <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>
@@ -265,13 +261,15 @@ function App() {
                   <p className="text-xl font-bold mb-6">{q.id}. {cleanedQuestionText}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {q.options.map((opt, idx) => {
-                      const isSelected = answers[q.id] === opt.val;
+                      // ATTRIBUTION DES POINTS : 1, 2, 3, 4, 5 ou 0 (si c'est la 6ème option)
+                      const points = idx === 5 ? 0 : idx + 1;
+                      const isSelected = answers[q.id] === points;
                       const cleanedOptionText = opt.text.replace(/^X\s/, "");
                       
                       return (
                         <button
                           key={idx}
-                          onClick={() => setAnswers({...answers, [q.id]: opt.val})}
+                          onClick={() => setAnswers({...answers, [q.id]: points})}
                           className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 font-bold uppercase text-xs
                             ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02] z-10" : "opacity-80 hover:opacity-100"}
                             ${colorMap[opt.color] || "bg-slate-800 text-white border-white/10"}
@@ -282,7 +280,7 @@ function App() {
                           </div>
                           <div className="flex justify-between items-center w-full">
                             <span>{cleanedOptionText}</span>
-                            <span className="text-[9px] opacity-60 ml-2">({opt.val} pts)</span>
+                            <span className="text-[9px] opacity-60 ml-2">({points} pts)</span>
                           </div>
                         </button>
                       );
@@ -295,7 +293,7 @@ function App() {
           </div>
         )}
 
-        {/* --- RÉSULTATS (SCORE SUR 5) --- */}
+        {/* RÉSULTATS */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -306,7 +304,6 @@ function App() {
                <div className="lg:col-span-1 bg-blue-600 p-16 rounded-[50px] flex flex-col items-center justify-center border border-white/20 shadow-2xl text-center">
                  <div className="text-9xl font-black leading-none">{globalScore}</div>
                  <span className="text-2xl font-bold uppercase mt-4">Score Global / 5.0</span>
-                 <p className="text-[10px] mt-4 font-black opacity-60 italic">Hors "Données indisponibles"</p>
                </div>
                <div className="lg:col-span-2 bg-slate-900/50 rounded-[50px] p-8 border border-white/10">
                  <ReactECharts option={chartOption} style={{ height: "550px" }} />
@@ -315,16 +312,16 @@ function App() {
            </div>
         )}
 
-        {/* --- PRIORITÉS --- */}
+        {/* PRIORITÉS */}
         {activeTab === "Priorités" && (
           <div className="space-y-8">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
             <div className="grid gap-6">
               {lowPerformingODDs.map(item => (
-                <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-blue-600 flex justify-between items-center shadow-lg">
+                <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-blue-600 flex justify-between items-center">
                   <div className="space-y-2">
                     <div className="text-4xl font-black text-blue-600/40 italic uppercase leading-none">{item.odd}</div>
-                    <p className="text-lg font-bold text-slate-200">Cet objectif nécessite une révision immédiate de vos politiques publiques.</p>
+                    <p className="text-lg font-bold text-slate-200">Action recommandée pour augmenter ce score.</p>
                   </div>
                   <div className="text-right shrink-0 ml-8">
                     <p className="text-blue-500 font-black text-[10px] uppercase tracking-widest">Score</p>
@@ -332,30 +329,30 @@ function App() {
                   </div>
                 </div>
               ))}
-              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Aucun ODD sous la barre de vigilance (3.0).</p>}
+              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Aucun ODD sous la barre de 3.0.</p>}
             </div>
           </div>
         )}
 
-        {/* --- CITOYENS --- */}
+        {/* CITOYENS */}
         {activeTab === "Citoyens" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
-             <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32 shadow-xl">
+             <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32">
                 <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-500">Proposer une idée</h3>
                 <form onSubmit={handleAddIdea} className="space-y-4">
                   <select name="oddSelection" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white font-bold outline-none focus:border-blue-500" required>
                     <option value="">Choisir un ODD...</option>
                     {oddAverages.map(item => <option key={item.odd} value={item.odd}>{item.odd}</option>)}
                   </select>
-                  <textarea name="ideaText" placeholder="Proposition citoyenne..." rows="6" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white outline-none focus:border-blue-500" required></textarea>
-                  <button type="submit" className="w-full bg-blue-600 p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg text-white">Publier</button>
+                  <textarea name="ideaText" placeholder="Proposition..." rows="6" className="w-full bg-black border border-white/20 p-4 rounded-xl text-white outline-none focus:border-blue-500" required></textarea>
+                  <button type="submit" className="w-full bg-blue-600 p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all text-white">Publier</button>
                 </form>
              </div>
              <div className="lg:col-span-2 space-y-6">
-                <h3 className="text-2xl font-black uppercase italic border-b border-white/10 pb-4 tracking-tighter">Boîte à idées communautaire</h3>
+                <h3 className="text-2xl font-black uppercase italic border-b border-white/10 pb-4 tracking-tighter">Boîte à idées</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {citizenIdeas.map((idea, idx) => (
-                    <div key={idx} className="bg-white text-black p-6 rounded-3xl flex flex-col justify-between shadow-xl hover:scale-[1.02] transition-all">
+                    <div key={idx} className="bg-white text-black p-6 rounded-3xl flex flex-col justify-between shadow-xl">
                       <p className="font-bold leading-tight mb-4 italic text-lg">"{idea.text}"</p>
                       <div className="flex justify-between items-center mt-4">
                          <span className="bg-blue-600 text-white px-2 py-1 rounded text-[8px] font-black uppercase">{idea.odd}</span>
@@ -368,7 +365,7 @@ function App() {
           </div>
         )}
 
-        {/* --- CONTACT --- */}
+        {/* CONTACT */}
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8">
