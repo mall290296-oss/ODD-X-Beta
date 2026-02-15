@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
 
-// Mapping des couleurs du JSON vers Tailwind
+// Mapping des couleurs mis à jour selon vos instructions
 const colorMap = {
   "rouge": "bg-red-600 text-white border-red-400 hover:bg-red-700",
   "orange": "bg-orange-500 text-white border-orange-300 hover:bg-orange-600",
@@ -106,10 +106,11 @@ function App() {
     const scores = {};
     const counts = {};
     questions.forEach((q) => {
-      const answer = answers[q.id];
-      if (answer !== undefined && answer !== null && answer > 0) {
+      const answerVal = answers[q.id];
+      // On ne compte la réponse que si elle est supérieure à 0 (Option 6 = 0 point n'est pas comptée dans la moyenne)
+      if (answerVal !== undefined && answerVal !== null && answerVal > 0) {
         q.odds.forEach((odd) => {
-          scores[odd] = (scores[odd] || 0) + answer;
+          scores[odd] = (scores[odd] || 0) + answerVal;
           counts[odd] = (counts[odd] || 0) + 1;
         });
       }
@@ -121,22 +122,23 @@ function App() {
     return {
       oddAverages: averages.sort((a, b) => a.odd.localeCompare(b.odd, undefined, {numeric: true})),
       globalScore: averages.length > 0 ? (averages.reduce((acc, item) => acc + item.value, 0) / averages.length).toFixed(2) : 0,
-      lowPerformingODDs: averages.filter(item => item.value < 2.5)
+      lowPerformingODDs: averages.filter(item => item.value < 3.0) // Seuil de vigilance ajusté à 3/5
     };
   }, [answers]);
 
   const chartOption = {
     backgroundColor: "transparent",
-    tooltip: { trigger: "item", formatter: "<strong>{b}</strong><br/>Score : {c} / 4" },
+    tooltip: { trigger: "item", formatter: "<strong>{b}</strong><br/>Score : {c} / 5" },
     series: [{
       type: "pie", radius: [40, 150], roseType: "area",
       itemStyle: { borderRadius: 4, borderColor: "#000", borderWidth: 2 },
       label: { show: true, color: "#fff", fontSize: 10 },
       data: oddAverages.map((item) => {
-        let color = "#ef4444";
-        if (item.value > 1.5) color = "#f97316";
-        if (item.value > 2.5) color = "#eab308";
-        if (item.value > 3.5) color = "#22c55e";
+        let color = "#ef4444"; // Rouge (< 2)
+        if (item.value >= 2) color = "#f97316"; // Orange
+        if (item.value >= 3) color = "#eab308"; // Jaune
+        if (item.value >= 4) color = "#4ade80"; // Vert clair
+        if (item.value >= 4.5) color = "#15803d"; // Vert foncé
         return { value: item.value, name: item.odd, itemStyle: { color } };
       }),
     }],
@@ -244,50 +246,56 @@ function App() {
           </div>
         )}
 
-        {/* --- QUESTIONNAIRE --- */}
+        {/* --- QUESTIONNAIRE (POINTS MIS À JOUR) --- */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6">
             <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg shadow-blue-500/20">
                 <p className="text-sm font-black uppercase tracking-widest italic">Collectivité : {muralInfo["Nom de la commune"]}</p>
                 <button onClick={() => setActiveTab("Diagnostic")} className="bg-black/20 px-4 py-1 rounded-full text-[10px] font-black hover:bg-black/40 uppercase text-white">Modifier l'identité</button>
             </div>
-            {questions.map((q) => (
-              <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 hover:border-blue-500/10 transition-all">
-                <div className="flex gap-2 mb-4">
-                  {q.odds.map(o => (
-                    <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>
-                  ))}
+            {questions.map((q) => {
+              const cleanedQuestionText = q.question.replace(/^Q\d+\s?-\s?/, "");
+              return (
+                <div key={q.id} className="bg-slate-900/40 p-8 rounded-[40px] border border-white/5 hover:border-blue-500/10 transition-all">
+                  <div className="flex gap-2 mb-4">
+                    {q.odds.map(o => (
+                      <span key={o} className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-black">ODD {o}</span>
+                    ))}
+                  </div>
+                  <p className="text-xl font-bold mb-6">{q.id}. {cleanedQuestionText}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {q.options.map((opt, idx) => {
+                      const isSelected = answers[q.id] === opt.val;
+                      const cleanedOptionText = opt.text.replace(/^X\s/, "");
+                      
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setAnswers({...answers, [q.id]: opt.val})}
+                          className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 font-bold uppercase text-xs
+                            ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02] z-10" : "opacity-80 hover:opacity-100"}
+                            ${colorMap[opt.color] || "bg-slate-800 text-white border-white/10"}
+                          `}
+                        >
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "bg-white border-white" : "border-current opacity-30"}`}>
+                             {isSelected && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                          </div>
+                          <div className="flex justify-between items-center w-full">
+                            <span>{cleanedOptionText}</span>
+                            <span className="text-[9px] opacity-60 ml-2">({opt.val} pts)</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <p className="text-xl font-bold mb-6">{q.id}. {q.question}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {q.options.map((opt, idx) => {
-                    const isSelected = answers[q.id] === opt.val;
-                    const cleanedText = opt.text.replace(/^X\s/, "");
-                    
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setAnswers({...answers, [q.id]: opt.val})}
-                        className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 font-bold uppercase text-xs
-                          ${isSelected ? "ring-4 ring-blue-500/50 scale-[1.02] z-10" : "opacity-80 hover:opacity-100"}
-                          ${colorMap[opt.color] || "bg-slate-800 text-white border-white/10"}
-                        `}
-                      >
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "bg-white border-white" : "border-current opacity-30"}`}>
-                           {isSelected && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
-                        </div>
-                        {cleanedText}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
             <button onClick={() => setActiveTab("Résultats")} className="w-full bg-blue-600 p-6 rounded-2xl font-black uppercase mt-10 shadow-xl shadow-blue-500/20 hover:scale-[1.01] transition-all">Calculer les résultats</button>
           </div>
         )}
 
-        {/* --- RÉSULTATS --- */}
+        {/* --- RÉSULTATS (SCORE SUR 5) --- */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -295,9 +303,10 @@ function App() {
                <button onClick={() => window.print()} className="bg-white text-black px-8 py-3 rounded-xl font-black uppercase hover:bg-blue-500 hover:text-white transition-all">Export PDF</button>
              </div>
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-               <div className="lg:col-span-1 bg-blue-600 p-16 rounded-[50px] flex flex-col items-center justify-center border border-white/20 shadow-2xl">
+               <div className="lg:col-span-1 bg-blue-600 p-16 rounded-[50px] flex flex-col items-center justify-center border border-white/20 shadow-2xl text-center">
                  <div className="text-9xl font-black leading-none">{globalScore}</div>
-                 <span className="text-2xl font-bold">/ 4.0</span>
+                 <span className="text-2xl font-bold uppercase mt-4">Score Global / 5.0</span>
+                 <p className="text-[10px] mt-4 font-black opacity-60 italic">Hors "Données indisponibles"</p>
                </div>
                <div className="lg:col-span-2 bg-slate-900/50 rounded-[50px] p-8 border border-white/10">
                  <ReactECharts option={chartOption} style={{ height: "550px" }} />
@@ -319,11 +328,11 @@ function App() {
                   </div>
                   <div className="text-right shrink-0 ml-8">
                     <p className="text-blue-500 font-black text-[10px] uppercase tracking-widest">Score</p>
-                    <p className="text-3xl font-black">{item.value} / 4</p>
+                    <p className="text-3xl font-black">{item.value} / 5</p>
                   </div>
                 </div>
               ))}
-              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Aucun ODD sous la barre critique de 2.5.</p>}
+              {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Aucun ODD sous la barre de vigilance (3.0).</p>}
             </div>
           </div>
         )}
@@ -359,7 +368,7 @@ function App() {
           </div>
         )}
 
-        {/* --- CONTACT (MIS À JOUR) --- */}
+        {/* --- CONTACT --- */}
         {activeTab === "Contact" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
             <div className="space-y-8">
