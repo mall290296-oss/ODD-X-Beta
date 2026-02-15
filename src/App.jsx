@@ -11,6 +11,15 @@ const colorMap = {
   "blanc": "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
 };
 
+// Fonction utilitaire pour récupérer la couleur HEX et Tailwind selon le score
+const getScoreVisuals = (score) => {
+  if (score < 2) return { hex: "#ef4444", twBorder: "border-red-600", label: "Score Critique", twText: "text-red-500" };
+  if (score < 3) return { hex: "#f97316", twBorder: "border-orange-500", label: "Score à améliorer", twText: "text-orange-500" };
+  if (score < 4) return { hex: "#eab308", twBorder: "border-yellow-500", label: "Score à améliorer", twText: "text-yellow-500" };
+  if (score < 4.5) return { hex: "#4ade80", twBorder: "border-green-400", label: "Bon score", twText: "text-green-400" };
+  return { hex: "#15803d", twBorder: "border-green-700", label: "Excellent score", twText: "text-green-700" };
+};
+
 function App() {
   const [activeTab, setActiveTab] = useState("Accueil");
 
@@ -109,14 +118,6 @@ function App() {
     }
   };
 
-  const handleAddIdea = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newIdea = { odd: formData.get("oddSelection"), text: formData.get("ideaText"), date: new Date().toLocaleDateString() };
-    setCitizenIdeas([newIdea, ...citizenIdeas]);
-    e.target.reset();
-  };
-
   const isFullyIdentified = useMemo(() => {
     return allRequiredFields.every(field => muralInfo[field] && muralInfo[field].toString().trim() !== "");
   }, [muralInfo, allRequiredFields]);
@@ -133,13 +134,10 @@ function App() {
         });
       }
     });
-    
     const averages = Object.keys(scores).map((odd) => ({
       odd: `ODD ${odd}`,
       value: Number((scores[odd] / counts[odd]).toFixed(2)),
     }));
-
-    // TRI DES PRIORITÉS : DU PLUS BAS AU PLUS HAUT SCORE
     const lowOnes = averages
       .filter(item => item.value < 4.0)
       .sort((a, b) => a.value - b.value);
@@ -159,14 +157,18 @@ function App() {
       itemStyle: { borderRadius: 4, borderColor: "#000", borderWidth: 2 },
       label: { show: true, color: "#fff", fontSize: 10 },
       data: oddAverages.map((item) => {
-        let color = "#ef4444"; 
-        if (item.value >= 2) color = "#f97316"; 
-        if (item.value >= 3) color = "#eab308"; 
-        if (item.value >= 4) color = "#4ade80"; 
-        if (item.value >= 4.5) color = "#15803d"; 
-        return { value: item.value, name: item.odd, itemStyle: { color } };
+        const visuals = getScoreVisuals(item.value);
+        return { value: item.value, name: item.odd, itemStyle: { color: visuals.hex } };
       }),
     }],
+  };
+
+  const handleAddIdea = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newIdea = { odd: formData.get("oddSelection"), text: formData.get("ideaText"), date: new Date().toLocaleDateString() };
+    setCitizenIdeas([newIdea, ...citizenIdeas]);
+    e.target.reset();
   };
 
   return (
@@ -183,6 +185,7 @@ function App() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-8 py-12">
+        {/* ACCUEIL */}
         {activeTab === "Accueil" && (
           <div className="text-center py-24 space-y-8 animate-in fade-in duration-1000">
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none">ODD-X</h1>
@@ -191,6 +194,7 @@ function App() {
           </div>
         )}
 
+        {/* DIAGNOSTIC */}
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/80 p-6 rounded-3xl border border-blue-500/20">
@@ -216,11 +220,7 @@ function App() {
                   {fields.map(field => (
                     <div key={field} className="flex flex-col">
                       <label className="text-[10px] font-black text-slate-500 uppercase mb-1 ml-2">{field}</label>
-                      <input 
-                        value={muralInfo[field] || ""} 
-                        onChange={(e) => setMuralInfo({...muralInfo, [field]: e.target.value})} 
-                        className={`bg-black border p-3 rounded-xl focus:border-blue-500 outline-none text-sm font-bold transition-all ${muralInfo[field] ? "border-green-500/30 text-white" : "border-white/10 text-slate-400"}`} 
-                      />
+                      <input value={muralInfo[field] || ""} onChange={(e) => setMuralInfo({...muralInfo, [field]: e.target.value})} className={`bg-black border p-3 rounded-xl focus:border-blue-500 outline-none text-sm font-bold transition-all ${muralInfo[field] ? "border-green-500/30 text-white" : "border-white/10 text-slate-400"}`} />
                     </div>
                   ))}
                 </div>
@@ -235,6 +235,7 @@ function App() {
           </div>
         )}
 
+        {/* QUESTIONNAIRE */}
         {activeTab === "Questionnaire" && (
           <div className="space-y-6 animate-in fade-in">
              <div className="bg-blue-600 p-4 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
@@ -270,6 +271,7 @@ function App() {
           </div>
         )}
 
+        {/* RÉSULTATS */}
         {activeTab === "Résultats" && (
            <div className="space-y-12 animate-in slide-in-from-bottom-10">
              <div className="flex justify-between items-end border-b border-white/10 pb-8 uppercase">
@@ -288,29 +290,33 @@ function App() {
            </div>
         )}
 
-        {/* PRIORITÉS (CLASSÉES DU SCORE LE PLUS BAS AU PLUS HAUT) */}
+        {/* PRIORITÉS (COULEURS DYNAMIQUES ET LIBELLÉS AJUSTÉS) */}
         {activeTab === "Priorités" && (
           <div className="space-y-8 animate-in fade-in">
             <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500">Priorités stratégiques</h2>
             <p className="text-slate-400 italic">ODD nécessitant une attention urgente (Classés par score croissant)</p>
             <div className="grid gap-6">
-              {lowPerformingODDs.map(item => (
-                <div key={item.odd} className="bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] border-red-600 flex justify-between items-center shadow-lg hover:border-blue-600 transition-all">
-                  <div className="space-y-2">
-                    <div className="text-4xl font-black text-red-600/40 italic uppercase leading-none">{item.odd}</div>
-                    <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif de durabilité.</p>
+              {lowPerformingODDs.map(item => {
+                const visuals = getScoreVisuals(item.value);
+                return (
+                  <div key={item.odd} className={`bg-slate-900/80 p-8 rounded-[30px] border-l-[12px] ${visuals.twBorder} flex justify-between items-center shadow-lg transition-all`}>
+                    <div className="space-y-2">
+                      <div className={`text-4xl font-black ${visuals.twText} opacity-40 italic uppercase leading-none`}>{item.odd}</div>
+                      <p className="text-lg font-bold text-slate-200">Action recommandée pour renforcer cet objectif de durabilité.</p>
+                    </div>
+                    <div className="text-right shrink-0 ml-8">
+                      <p className={`${visuals.twText} font-black text-[10px] uppercase tracking-widest`}>{visuals.label}</p>
+                      <p className="text-3xl font-black">{item.value} / 5</p>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0 ml-8">
-                    <p className="text-red-500 font-black text-[10px] uppercase tracking-widest">Score Critique</p>
-                    <p className="text-3xl font-black">{item.value} / 5</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {lowPerformingODDs.length === 0 && <p className="text-center py-20 italic opacity-50">Félicitations ! Tous vos ODD sont au-dessus de 4.0.</p>}
             </div>
           </div>
         )}
 
+        {/* CITOYENS */}
         {activeTab === "Citoyens" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8 animate-in fade-in">
              <div className="lg:col-span-1 bg-slate-900/80 p-8 rounded-[40px] border border-white/10 h-fit sticky top-32">
@@ -341,6 +347,7 @@ function App() {
           </div>
         )}
 
+        {/* CONTACT & À PROPOS */}
         {activeTab === "À Propos" && (
           <div className="py-12 max-w-3xl mx-auto space-y-8 animate-in fade-in">
             <h2 className="text-6xl font-black italic uppercase underline decoration-blue-500 leading-tight">Notre Mission</h2>
@@ -355,7 +362,7 @@ function App() {
               <p>📍 Paris, France</p>
               <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold hover:text-blue-500">info@odd-x.com</a></p>
             </div>
-            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4">
+            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-slate-900/50 p-12 rounded-[50px] border border-white/10 space-y-4 shadow-2xl">
               <input type="text" name="name" required placeholder="NOM" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <input type="email" name="email" required placeholder="EMAIL" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold" />
               <textarea name="message" required placeholder="MESSAGE..." rows="5" className="w-full bg-black border border-white/10 p-6 rounded-2xl text-white outline-none focus:border-blue-500 font-bold"></textarea>
