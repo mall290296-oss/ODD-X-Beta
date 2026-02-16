@@ -67,6 +67,9 @@ function App() {
   const [muralInfo, setMuralInfo] = useState(() => JSON.parse(localStorage.getItem("oddx_current_identite") || "{}"));
   const [citizenIdeas, setCitizenIdeas] = useState(() => JSON.parse(localStorage.getItem("oddx_ideas") || "[]"));
   const [selectedOddForm, setSelectedOddForm] = useState("");
+  
+  // NOUVEL ETAT : Gestion de la section active du diagnostic
+  const [activeDiagnosticSection, setActiveDiagnosticSection] = useState(null);
 
   const storageKey = useMemo(() => {
     const name = muralInfo["Nom de la commune"];
@@ -108,16 +111,22 @@ function App() {
     }
   }, [answers, muralInfo, citizenIdeas, storageKey, profiles]);
 
-  // Groupement des questions
-  const groupedQuestions = [
-    { title: "PARTIE 1 - ENVIRONNEMENT", questions: questions.filter(q => q.id >= 1 && q.id <= 17) },
-    { title: "PARTIE 2 - SOCIAL & GOUVERNANCE", questions: questions.filter(q => q.id >= 18 && q.id <= 33) },
-    { title: "PARTIE 3 - ÉCONOMIE & AMÉNAGEMENT DURABLE", questions: questions.filter(q => q.id >= 34 && q.id <= 50) }
-  ];
+  // Groupement des questions avec identifiants pour le menu
+  const groupedQuestions = useMemo(() => [
+    { id: 'env', title: "PARTIE 1 - ENVIRONNEMENT", questions: questions.filter(q => q.id >= 1 && q.id <= 17) },
+    { id: 'soc', title: "PARTIE 2 - SOCIAL & GOUVERNANCE", questions: questions.filter(q => q.id >= 18 && q.id <= 33) },
+    { id: 'eco', title: "PARTIE 3 - ÉCONOMIE & AMÉNAGEMENT DURABLE", questions: questions.filter(q => q.id >= 34 && q.id <= 50) }
+  ], []);
 
-  // Calcul de la progression
-  const answeredCount = Object.keys(answers).length;
-  const progressPercent = (answeredCount / questions.length) * 100;
+  // Calcul de progression par groupe
+  const getGroupProgress = (groupQuestions) => {
+    const count = groupQuestions.filter(q => answers[q.id] !== undefined).length;
+    return {
+      count,
+      total: groupQuestions.length,
+      percent: Math.round((count / groupQuestions.length) * 100)
+    };
+  };
 
   const handleSwitchProfile = (profileName) => {
     if (!profileName) { setMuralInfo({}); setAnswers({}); return; }
@@ -291,61 +300,122 @@ function App() {
 
         {activeTab === "Questionnaire" && (
            <div className="space-y-12 animate-in fade-in">
-              {/* En-tête fixe avec barre de progression */}
-              <div className="bg-white border border-slate-200 p-6 rounded-3xl mb-8 flex flex-col md:flex-row justify-between items-center shadow-lg sticky top-24 z-40 gap-4">
-                <div className="w-full md:w-auto">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Progression : {answeredCount} / {questions.length}</p>
-                   <div className="w-full md:w-64 h-2 bg-slate-100 rounded-full mt-2 overflow-hidden border border-slate-200">
-                      <div className="h-full bg-blue-600 transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
-                   </div>
+              {/* En-tête Compact */}
+              <div className="bg-white border border-slate-200 p-6 rounded-3xl mb-8 flex justify-between items-center shadow-lg sticky top-24 z-40">
+                <div className="flex items-center gap-4">
+                  {activeDiagnosticSection && (
+                    <button 
+                      onClick={() => setActiveDiagnosticSection(null)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-blue-700 transition-all shadow-md"
+                    >
+                      ← Menu des sections
+                    </button>
+                  )}
+                  <p className="text-sm font-black uppercase text-slate-800 italic">
+                    Diagnostic : <span className="text-blue-600">{muralInfo["Nom de la commune"]}</span>
+                  </p>
                 </div>
-                <div className="text-center">
-                   <p className="text-sm font-black uppercase text-slate-800 italic">{muralInfo["Nom de la commune"]}</p>
-                </div>
-                <button onClick={() => setActiveTab("Diagnostic")} className="bg-slate-100 hover:bg-slate-200 px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-slate-600 transition-colors">Modifier Infos</button>
+                <button onClick={() => setActiveTab("Diagnostic")} className="bg-slate-100 hover:bg-slate-200 px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-slate-600">Modifier Infos</button>
               </div>
 
-              {/* Questions Groupées */}
-              {groupedQuestions.map((group, gIdx) => (
-                <div key={gIdx} className="space-y-8">
-                  <h3 className="text-3xl font-black text-slate-900 italic border-l-8 border-blue-600 pl-4 py-2 bg-slate-100/50 rounded-r-2xl">
-                    {group.title}
-                  </h3>
-                  
-                  {group.questions.map((q) => (
-                    <div key={q.id} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex gap-2 mb-4">
-                        {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
-                      </div>
-                      <p className="text-xl font-bold mb-6 text-slate-800">{q.id}. {q.question.replace(/^Q\d+\s?[-–]\s?/, "")}</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {q.options.map((opt, idx) => {
-                          const pts = idx === 5 ? 0 : idx + 1; 
-                          const sel = answers[q.id] === pts;
-                          return (
-                            <button key={idx} onClick={() => setAnswers({...answers, [q.id]: pts})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-[11px] flex items-center gap-3 ${sel ? "ring-4 ring-blue-100 border-blue-400 scale-[1.01]" : "opacity-90"} ${colorMap[opt.color] || "bg-slate-50"}`}>
-                              <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0 flex items-center justify-center bg-white">
-                                {sel && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
-                              </div>
-                              {opt.text.replace(/^X\s/, "")}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+              {/* MODE MENU : 3 Grandes Cartes avec Progression Individuelle */}
+              {!activeDiagnosticSection ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
+                  {groupedQuestions.map((group) => {
+                    const progress = getGroupProgress(group.questions);
+                    return (
+                      <button
+                        key={group.id}
+                        onClick={() => { setActiveDiagnosticSection(group.id); window.scrollTo(0,0); }}
+                        className="relative aspect-[3/4] bg-[#1a5f7a] rounded-[30px] shadow-2xl p-10 flex flex-col justify-center items-center text-center group hover:scale-[1.03] hover:bg-[#14495e] transition-all duration-300 overflow-hidden border-4 border-transparent hover:border-white/10"
+                      >
+                        {/* Fond dynamique basé sur la progression de la section */}
+                        <div 
+                          className="absolute bottom-0 left-0 w-full bg-blue-500/20 transition-all duration-1000" 
+                          style={{ height: `${progress.percent}%` }}
+                        ></div>
+
+                        <h3 className="relative z-10 text-white text-2xl font-black uppercase tracking-tighter leading-tight mb-4">
+                          {group.title.split(' - ')[0]}<br/>
+                          <span className="text-blue-300 text-lg italic">—</span><br/>
+                          {group.title.split(' - ')[1]}
+                        </h3>
+
+                        <div className="relative z-10 mt-6">
+                           <div className="text-4xl font-black text-white">{progress.percent}%</div>
+                           <div className="text-[10px] font-bold text-blue-200 uppercase tracking-widest mt-1">
+                             {progress.count} / {progress.total} RÉPONSES
+                           </div>
+                        </div>
+
+                        <div className="relative z-10 mt-10 bg-white text-[#1a5f7a] px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest group-hover:scale-110 transition-transform">
+                          {progress.percent === 100 ? "Modifier" : "Commencer"}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-              ))}
-              
-              <button 
-                onClick={() => { window.scrollTo(0,0); setActiveTab("Résultats"); }} 
-                className="w-full bg-blue-600 text-white p-8 rounded-3xl font-black uppercase text-xl shadow-xl shadow-blue-200 transition-all hover:bg-blue-700 hover:scale-[1.02]"
-              >
-                Calculer les résultats
-              </button>
+              ) : (
+                /* MODE QUESTIONNAIRE : Affichage de la section sélectionnée */
+                <div className="space-y-8 animate-in slide-in-from-right-10">
+                  {groupedQuestions
+                    .filter(g => g.id === activeDiagnosticSection)
+                    .map((group) => (
+                      <div key={group.id} className="space-y-8">
+                        <div className="flex justify-between items-end border-b-4 border-blue-600 pb-4">
+                          <h3 className="text-4xl font-black text-slate-900 italic uppercase leading-none">
+                            {group.title}
+                          </h3>
+                          <span className="text-blue-600 font-black tracking-widest uppercase text-sm">
+                            {getGroupProgress(group.questions).percent}% Complété
+                          </span>
+                        </div>
+                        
+                        {group.questions.map((q) => (
+                          <div key={q.id} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm">
+                            <div className="flex gap-2 mb-4">
+                              {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
+                            </div>
+                            <p className="text-xl font-bold mb-6 text-slate-800">{q.id}. {q.question.replace(/^Q\d+\s?[-–]\s?/, "")}</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {q.options.map((opt, idx) => {
+                                const pts = idx === 5 ? 0 : idx + 1; 
+                                const sel = answers[q.id] === pts;
+                                return (
+                                  <button key={idx} onClick={() => setAnswers({...answers, [q.id]: pts})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-[11px] flex items-center gap-3 ${sel ? "ring-4 ring-blue-100 border-blue-400 scale-[1.01]" : "opacity-90"} ${colorMap[opt.color] || "bg-slate-50"}`}>
+                                    <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0 flex items-center justify-center bg-white">
+                                      {sel && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                                    </div>
+                                    {opt.text.replace(/^X\s/, "")}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+
+                  <div className="flex flex-col md:flex-row gap-6 pt-10 pb-20">
+                    <button 
+                      onClick={() => { setActiveDiagnosticSection(null); window.scrollTo(0,0); }}
+                      className="flex-1 bg-slate-800 text-white p-6 rounded-3xl font-black uppercase hover:bg-slate-900 transition-all shadow-xl"
+                    >
+                      ← Revenir au menu des sections
+                    </button>
+                    <button 
+                      onClick={() => { window.scrollTo(0,0); setActiveTab("Résultats"); }} 
+                      className="flex-1 bg-blue-600 text-white p-6 rounded-3xl font-black uppercase shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all"
+                    >
+                      Voir les résultats finaux
+                    </button>
+                  </div>
+                </div>
+              )}
            </div>
         )}
 
+        {/* ... Autres onglets (Résultats, Priorités, Partenaires, Citoyens, Contact) identiques aux versions précédentes ... */}
         {activeTab === "Résultats" && (
           <div className="space-y-12 animate-in slide-in-from-bottom-10">
             <div className="flex flex-col md:flex-row justify-between items-center md:items-end border-b-4 border-blue-600 pb-8 gap-6">
@@ -462,7 +532,6 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {citizenIdeas.map((idea, idx) => (
                     <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between group relative transition-all hover:border-blue-200">
-                      {/* BOUTON SUPPRIMER - Apparaît au survol */}
                       <button 
                         onClick={() => handleDeleteIdea(idx)}
                         className="absolute -top-2 -right-2 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 z-10"
@@ -470,7 +539,6 @@ function App() {
                       >
                         ✕
                       </button>
-
                       <div className="flex gap-4 mb-4">
                          <img src={oddIcons[idea.odd]} alt="" className="w-10 h-10 rounded-md shrink-0" />
                          <p className="font-bold italic text-slate-700 leading-tight">"{idea.text}"</p>
@@ -493,17 +561,11 @@ function App() {
               <p>📍 Paris, France</p>
               <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold text-blue-600 hover:underline">info@odd-x.com</a></p>
             </div>
-            <form 
-              action="https://formspree.io/f/xwvnldkr" 
-              method="POST" 
-              className="bg-white p-12 rounded-[50px] border border-slate-200 space-y-4 shadow-xl"
-            >
+            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-white p-12 rounded-[50px] border border-slate-200 space-y-4 shadow-xl">
               <input type="text" name="name" placeholder="NOM" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required />
               <input type="email" name="email" placeholder="EMAIL" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required />
               <textarea name="message" placeholder="MESSAGE..." rows="5" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required></textarea>
-              <button type="submit" className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">
-                Envoyer
-              </button>
+              <button type="submit" className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Envoyer</button>
             </form>
           </div>
         )}
