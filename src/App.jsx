@@ -11,14 +11,6 @@ const colorMap = {
   "blanc": "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
 };
 
-const oddColors = {
-  "ODD 1": "#E5243B", "ODD 2": "#DDA63A", "ODD 3": "#4C9F38", "ODD 4": "#C5192D",
-  "ODD 5": "#FF3A21", "ODD 6": "#26BDE2", "ODD 7": "#FCC30B", "ODD 8": "#A21942",
-  "ODD 9": "#FD6925", "ODD 10": "#DD1367", "ODD 11": "#FD9D24", "ODD 12": "#BF8B2E",
-  "ODD 13": "#3F7E44", "ODD 14": "#0A97D9", "ODD 15": "#56C02B", "ODD 16": "#00689D",
-  "ODD 17": "#19486A"
-};
-
 const oddIcons = {
   "ODD 1": "https://www.agenda-2030.fr/IMG/svg/odd1.svg?1614036680",
   "ODD 2": "https://www.agenda-2030.fr/IMG/svg/odd2.svg?1614036681",
@@ -256,28 +248,23 @@ function App() {
             </div>
             <h1 className="text-8xl font-black tracking-tighter uppercase leading-none text-slate-900">ODD-X</h1>
             <p className="text-2xl text-slate-500 max-w-2xl mx-auto font-light italic">Le diagnostic de durabilité pour les collectivités territoriales.</p>
-            
-            {/* CODE QR INTÉGRÉ ICI */}
-            <div className="flex flex-col items-center gap-4 pt-10">
-              <div className="bg-white p-4 rounded-[30px] shadow-2xl border border-slate-100 transition-transform hover:scale-105">
-                <img 
-                  src="/URL QR Code.png" 
-                  alt="Code QR ODD-X" 
-                  className="w-32 h-32 md:w-40 md:h-40 object-contain"
-                />
-              </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                Scanner pour accéder au diagnostic mobile
-              </p>
-            </div>
-
             <div className="pt-6">
               <button onClick={() => setActiveTab("Diagnostic")} className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-5 rounded-full font-black text-lg transition-all hover:scale-105 shadow-xl shadow-blue-200">DÉMARRER LE DIAGNOSTIC</button>
             </div>
           </div>
         )}
 
-        {/* ... (À Propos reste inchangé) */}
+        {activeTab === "À Propos" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in">
+            <div className="space-y-8">
+              <h2 className="text-6xl font-black italic underline decoration-blue-500 decoration-8 underline-offset-8 uppercase leading-tight text-slate-900">Notre Engagement</h2>
+              <p className="text-xl text-slate-600 leading-relaxed font-light">ODD-X transforme les données communales en leviers d'action. En alignant votre stratégie sur les Objectifs de Développement Durable, nous créons ensemble des territoires résilients.</p>
+            </div>
+            <div className="rounded-[40px] overflow-hidden border border-slate-200 shadow-2xl">
+              <img src="https://educatif.eedf.fr/wp-content/uploads/sites/157/2021/02/ODD.jpg" alt="ODD Logo" className="w-full grayscale hover:grayscale-0 transition-all duration-700" />
+            </div>
+          </div>
+        )}
 
         {activeTab === "Diagnostic" && (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in">
@@ -369,7 +356,7 @@ function App() {
                 </div>
               ) : (
                 <div className="space-y-8 animate-in slide-in-from-right-10">
-                  {groupQuestions = groupedQuestions
+                  {groupedQuestions
                     .filter(g => g.id === activeDiagnosticSection)
                     .map((group) => (
                       <div key={group.id} className="space-y-8">
@@ -388,6 +375,7 @@ function App() {
                               {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
                             </div>
                             
+                            {/* LOGIQUE DE MISE EN GRAS DU TITRE AVANT LE POINT */}
                             <p className="text-xl mb-6 text-slate-800">
                                 <span className="font-black">{q.id}. </span>
                                 {(() => {
@@ -445,7 +433,88 @@ function App() {
            </div>
         )}
 
-        {/* ... (Résultats, Priorités, Institutions restent inchangés) */}
+        {activeTab === "Résultats" && (
+          <div className="space-y-12 animate-in slide-in-from-bottom-10">
+            <div className="flex flex-col md:flex-row justify-between items-center md:items-end border-b-4 border-blue-600 pb-8 gap-6">
+              <div className="flex items-center gap-6">
+                <div className="w-32 h-20 bg-white rounded-xl shadow-sm border border-slate-100 p-2 shrink-0">
+                  <img src={LOGO_URL} alt="Polytechnique" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h2 className="text-5xl font-black italic uppercase leading-tight text-slate-900">Rapport de Diagnostic</h2>
+                  <p className="text-blue-600 font-black text-xl uppercase tracking-widest">{muralInfo["Nom de la commune"] || "Collectivité"}</p>
+                </div>
+              </div>
+              <button onClick={() => window.print()} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-black uppercase hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 print:hidden">Imprimer / Export PDF</button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-1 bg-blue-600 p-16 rounded-[50px] flex flex-col items-center justify-center border border-white/20 shadow-2xl text-center text-white relative overflow-hidden">
+                <img src={LOGO_URL} alt="" className="absolute w-64 h-64 opacity-10 -bottom-10 -right-10 rotate-12 pointer-events-none grayscale invert" />
+                <div className="relative z-10">
+                  <div className="text-9xl font-black leading-none">{globalScore}</div>
+                  <span className="text-2xl font-bold uppercase mt-4 block">Score Global / 5.0</span>
+                </div>
+              </div>
+              <div className="lg:col-span-2 bg-white rounded-[50px] p-8 border border-slate-200 shadow-sm flex items-center justify-center">
+                <ReactECharts option={chartOption} style={{ height: "600px", width: "100%" }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "Priorités" && (
+          <div className="space-y-8 animate-in fade-in">
+            <div className="space-y-4">
+              <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Priorités stratégiques</h2>
+              <p className="text-slate-500 text-lg max-w-4xl leading-relaxed italic border-l-4 border-slate-200 pl-6">
+                "Nous ne vous proposons ici que des recommandations générales. Si vous avez besoin d'une approche spécifique, veuillez contacter un spécialiste ou consulter la liste des institutions publiques figurant sur ce site web."
+              </p>
+            </div>
+            <div className="grid gap-6">
+              {lowPerformingODDs.map(item => {
+                const visuals = getScoreVisuals(item.value);
+                return (
+                  <div key={item.odd} className={`bg-white p-8 rounded-[30px] border-l-[20px] ${visuals.twBorder} flex justify-between items-center shadow-md border border-slate-200`}>
+                    <div className="flex items-center gap-8">
+                      <img src={oddIcons[item.odd]} alt={item.odd} className="w-20 h-20 rounded-xl" />
+                      <div>
+                        <div className={`text-5xl font-black ${visuals.twText} italic uppercase leading-none mb-2`}>{item.odd}</div>
+                        <p className="text-lg font-bold text-slate-700">{oddDescriptions[item.odd]}</p>
+                      </div>
+                    </div>
+                    <div className="text-right"><p className="text-5xl font-black text-slate-900">{item.value} <span className="text-sm text-slate-400">/ 5</span></p></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "Partenaires" && (
+          <div className="space-y-12 animate-in fade-in">
+            <div className="space-y-4">
+              <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Institutions spécialisées</h2>
+              <p className="text-slate-500 text-lg max-w-3xl leading-relaxed">
+                Ces organismes publics et réseaux d'experts pourraient vous accompagner dans votre transition durable et vous aider à améliorer vos performances en matière d'ODD.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[
+                { name: "ADEME", full: "Agence de la transition écologique", desc: "Expertise technique et financements pour les projets de transition énergétique et d'économie circulaire.", link: "https://www.ademe.fr" },
+                { name: "FVD", full: "France Villes et Territoires Durables", desc: "Fédération des acteurs de la ville durable pour accélérer le déployement des ODD à l'échelle locale.", link: "https://francevilledurable.fr/" },
+                { name: "Club DD", full: "Le club développement durable", desc: "Réseau d'échange pour les établissements et entreprises publics sur les enjeux de durabilité.", link: "https://www.ecologie.gouv.fr/politiques-publiques/club-developpement-durable-etablissements-entreprises-publics" },
+                { name: "ANCT", full: "Agence Nationale de la Cohésion des Territoires", desc: "Support aux mairies dans leurs projets de revitalisation et de cohésion territoriale.", link: "https://agence-cohesion-territoires.gouv.fr" }
+              ].map((inst, i) => (
+                <div key={i} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm hover:shadow-xl transition-all">
+                  <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase mb-4 inline-block">{inst.name}</span>
+                  <h3 className="text-xl font-black text-slate-900 uppercase mb-2">{inst.full}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed mb-6">{inst.desc}</p>
+                  <a href={inst.link} target="_blank" rel="noreferrer" className="text-blue-600 font-black text-xs uppercase tracking-widest border-b-2 border-blue-100 hover:border-blue-600 transition-all">Consulter les ressources</a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {activeTab === "Citoyens" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 animate-in fade-in">
@@ -461,21 +530,13 @@ function App() {
                   <select
                     value={selectedOddForm}
                     onChange={(e) => setSelectedOddForm(e.target.value)}
-                    className="w-full border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                     required
-                    style={{ 
-                      backgroundColor: selectedOddForm ? oddColors[selectedOddForm] : '#f8fafc',
-                      color: selectedOddForm ? 'white' : '#64748b' 
-                    }}
                   >
-                    <option value="" style={{ color: '#64748b', backgroundColor: 'white' }}>Choisir un ODD...</option>
+                    <option value="">Choisir un ODD...</option>
                     {Object.keys(oddDescriptions).map(odd => (
-                      <option 
-                        key={odd} 
-                        value={odd}
-                        style={{ backgroundColor: oddColors[odd], color: 'white' }}
-                      >
-                        {odd} - {oddDescriptions[odd].substring(0, 50)}...
+                      <option key={odd} value={odd}>
+                        {odd} - {oddDescriptions[odd].substring(0, 40)}...
                       </option>
                     ))}
                   </select>
@@ -488,7 +549,21 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {citizenIdeas.map((idea, idx) => (
                     <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between group relative transition-all hover:border-blue-200">
-                      {/* ... (Rendu des idées citoyennes) */}
+                      <button 
+                        onClick={() => handleDeleteIdea(idx)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 z-10"
+                        title="Supprimer cette idée"
+                      >
+                        ✕
+                      </button>
+                      <div className="flex gap-4 mb-4">
+                         <img src={oddIcons[idea.odd]} alt="" className="w-10 h-10 rounded-md shrink-0" />
+                         <p className="font-bold italic text-slate-700 leading-tight">"{idea.text}"</p>
+                      </div>
+                      <div className="flex justify-between items-center mt-auto border-t border-slate-50 pt-4">
+                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">{idea.odd}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Le {idea.date}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -496,7 +571,21 @@ function App() {
           </div>
         )}
 
-        {/* ... (Contact reste inchangé) */}
+        {activeTab === "Contact" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 py-12 items-center animate-in fade-in">
+            <div className="space-y-8 text-slate-600 text-xl font-light">
+              <h2 className="text-7xl font-black uppercase italic underline decoration-blue-500 leading-tight text-slate-900">Contact</h2>
+              <p>📍 Paris, France</p>
+              <p>✉️ <a href="mailto:info@odd-x.com" className="font-bold text-blue-600 hover:underline">info@odd-x.com</a></p>
+            </div>
+            <form action="https://formspree.io/f/xwvnldkr" method="POST" className="bg-white p-12 rounded-[50px] border border-slate-200 space-y-4 shadow-xl">
+              <input type="text" name="name" placeholder="NOM" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required />
+              <input type="email" name="email" placeholder="EMAIL" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required />
+              <textarea name="message" placeholder="MESSAGE..." rows="5" className="w-full bg-slate-50 border border-slate-100 p-6 rounded-2xl font-bold" required></textarea>
+              <button type="submit" className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Envoyer</button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
