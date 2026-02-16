@@ -67,8 +67,6 @@ function App() {
   const [muralInfo, setMuralInfo] = useState(() => JSON.parse(localStorage.getItem("oddx_current_identite") || "{}"));
   const [citizenIdeas, setCitizenIdeas] = useState(() => JSON.parse(localStorage.getItem("oddx_ideas") || "[]"));
   const [selectedOddForm, setSelectedOddForm] = useState("");
-  
-  // NOUVEL ETAT : Gestion de la section active du diagnostic
   const [activeDiagnosticSection, setActiveDiagnosticSection] = useState(null);
 
   const storageKey = useMemo(() => {
@@ -111,14 +109,12 @@ function App() {
     }
   }, [answers, muralInfo, citizenIdeas, storageKey, profiles]);
 
-  // Groupement des questions avec identifiants pour le menu
   const groupedQuestions = useMemo(() => [
     { id: 'env', title: "PARTIE 1 - ENVIRONNEMENT", questions: questions.filter(q => q.id >= 1 && q.id <= 17) },
     { id: 'soc', title: "PARTIE 2 - SOCIAL & GOUVERNANCE", questions: questions.filter(q => q.id >= 18 && q.id <= 33) },
     { id: 'eco', title: "PARTIE 3 - ÉCONOMIE & AMÉNAGEMENT DURABLE", questions: questions.filter(q => q.id >= 34 && q.id <= 50) }
   ], []);
 
-  // Calcul de progression par groupe
   const getGroupProgress = (groupQuestions) => {
     const count = groupQuestions.filter(q => answers[q.id] !== undefined).length;
     return {
@@ -126,6 +122,12 @@ function App() {
       total: groupQuestions.length,
       percent: Math.round((count / groupQuestions.length) * 100)
     };
+  };
+
+  const cleanQuestionText = (text) => {
+    let cleaned = text.replace(/^Q\d+\s?[-–]\s?/, "");
+    cleaned = cleaned.replace(/\s?\(ODD[^)]*\)/gi, "");
+    return cleaned;
   };
 
   const handleSwitchProfile = (profileName) => {
@@ -300,7 +302,6 @@ function App() {
 
         {activeTab === "Questionnaire" && (
            <div className="space-y-12 animate-in fade-in">
-              {/* En-tête Compact */}
               <div className="bg-white border border-slate-200 p-6 rounded-3xl mb-8 flex justify-between items-center shadow-lg sticky top-24 z-40">
                 <div className="flex items-center gap-4">
                   {activeDiagnosticSection && (
@@ -318,7 +319,6 @@ function App() {
                 <button onClick={() => setActiveTab("Diagnostic")} className="bg-slate-100 hover:bg-slate-200 px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-slate-600">Modifier Infos</button>
               </div>
 
-              {/* MODE MENU : 3 Grandes Cartes avec Progression Individuelle */}
               {!activeDiagnosticSection ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
                   {groupedQuestions.map((group) => {
@@ -329,7 +329,6 @@ function App() {
                         onClick={() => { setActiveDiagnosticSection(group.id); window.scrollTo(0,0); }}
                         className="relative aspect-[3/4] bg-[#1a5f7a] rounded-[30px] shadow-2xl p-10 flex flex-col justify-center items-center text-center group hover:scale-[1.03] hover:bg-[#14495e] transition-all duration-300 overflow-hidden border-4 border-transparent hover:border-white/10"
                       >
-                        {/* Fond dynamique basé sur la progression de la section */}
                         <div 
                           className="absolute bottom-0 left-0 w-full bg-blue-500/20 transition-all duration-1000" 
                           style={{ height: `${progress.percent}%` }}
@@ -356,7 +355,6 @@ function App() {
                   })}
                 </div>
               ) : (
-                /* MODE QUESTIONNAIRE : Affichage de la section sélectionnée */
                 <div className="space-y-8 animate-in slide-in-from-right-10">
                   {groupedQuestions
                     .filter(g => g.id === activeDiagnosticSection)
@@ -376,7 +374,27 @@ function App() {
                             <div className="flex gap-2 mb-4">
                               {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
                             </div>
-                            <p className="text-xl font-bold mb-6 text-slate-800">{q.id}. {q.question.replace(/^Q\d+\s?[-–]\s?/, "")}</p>
+                            
+                            {/* LOGIQUE DE MISE EN GRAS DU TITRE AVANT LE POINT */}
+                            <p className="text-xl mb-6 text-slate-800">
+                                <span className="font-black">{q.id}. </span>
+                                {(() => {
+                                    const fullText = cleanQuestionText(q.question);
+                                    const dotIndex = fullText.indexOf('.');
+                                    if (dotIndex !== -1) {
+                                        const title = fullText.substring(0, dotIndex + 1);
+                                        const description = fullText.substring(dotIndex + 1);
+                                        return (
+                                            <>
+                                                <span className="font-black">{title}</span>
+                                                <span className="font-medium text-slate-600"> {description}</span>
+                                            </>
+                                        );
+                                    }
+                                    return <span className="font-black">{fullText}</span>;
+                                })()}
+                            </p>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {q.options.map((opt, idx) => {
                                 const pts = idx === 5 ? 0 : idx + 1; 
@@ -415,7 +433,6 @@ function App() {
            </div>
         )}
 
-        {/* ... Autres onglets (Résultats, Priorités, Partenaires, Citoyens, Contact) identiques aux versions précédentes ... */}
         {activeTab === "Résultats" && (
           <div className="space-y-12 animate-in slide-in-from-bottom-10">
             <div className="flex flex-col md:flex-row justify-between items-center md:items-end border-b-4 border-blue-600 pb-8 gap-6">
@@ -484,7 +501,7 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[
                 { name: "ADEME", full: "Agence de la transition écologique", desc: "Expertise technique et financements pour les projets de transition énergétique et d'économie circulaire.", link: "https://www.ademe.fr" },
-                { name: "FVD", full: "France Villes et Territoires Durables", desc: "Fédération des acteurs de la ville durable pour accélérer le déploiement des ODD à l'échelle locale.", link: "https://francevilledurable.fr/" },
+                { name: "FVD", full: "France Villes et Territoires Durables", desc: "Fédération des acteurs de la ville durable pour accélérer le déployement des ODD à l'échelle locale.", link: "https://francevilledurable.fr/" },
                 { name: "Club DD", full: "Le club développement durable", desc: "Réseau d'échange pour les établissements et entreprises publics sur les enjeux de durabilité.", link: "https://www.ecologie.gouv.fr/politiques-publiques/club-developpement-durable-etablissements-entreprises-publics" },
                 { name: "ANCT", full: "Agence Nationale de la Cohésion des Territoires", desc: "Support aux mairies dans leurs projets de revitalisation et de cohésion territoriale.", link: "https://agence-cohesion-territoires.gouv.fr" }
               ].map((inst, i) => (

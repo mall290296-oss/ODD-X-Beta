@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "question": "Q1 - Intégration des ODD environnementaux dans la planification communale (ODD 11, 13 - PLU/PLUi, PCAET, schémas communaux). Évalue dans quelle mesure la commune intègre les enjeux environnementaux et climatiques dans ses documents de planification.",
+    "question": "Q1 - Intégration des ODD environnementaux dans la planification communale (ODD 11, 13) - PLU/PLUi, PCAET, schémas communaux - . Évalue dans quelle mesure la commune intègre les enjeux environnementaux et climatiques dans ses documents de planification.",
     "odds": [11, 13],
     "options": [
       { "val": 0, "text": "Aucun document ne prend en compte ces enjeux", "color": "rouge" },
@@ -14,7 +14,7 @@
   },
   {
     "id": 2,
-    "question": "Q2 - Couverture des diagnostics énergétiques des bâtiments communaux (ODD 7, 13 - écoles, mairie, équipements sportifs). Pourcentage des bâtiments communaux ayant un diagnostic énergétique récent ou une rénovation énergétique.",
+    "question": "Q2 - Couverture des diagnostics énergétiques des bâtiments communaux (ODD 7, 13) - écoles, mairie, équipements sportifs - . Pourcentage des bâtiments communaux ayant un diagnostic énergétique récent ou une rénovation énergétique.",
     "odds": [7, 13],
     "options": [
       { "val": 0, "text": "0-10 %", "color": "rouge" },
@@ -27,7 +27,7 @@
   },
   {
     "id": 3,
-    "question": "Q3 - Réduction de la consommation d’énergie dans les bâtiments communaux (ODD 7, 13). Pourcentage des bâtiments communaux où des mesures de réduction de la consommation d’énergie ont été mises en place (éclairage LED, isolation, chauffage optimisé).",
+    "question": "Q3 - Réduction de la consommation d’énergie dans les bâtiments communaux (ODD 7, 13). Pourcentage des bâtiments communaux où des mesures de réduction de la consommation d’énergie ont été mises en place - éclairage LED, isolation, chauffage optimisé - .",
     "odds": [7, 13],
     "options": [
       { "val": 0, "text": "0-10 %", "color": "rouge" },
@@ -53,7 +53,7 @@
   },
   {
     "id": 5,
-    "question": "Q5 - Gestion des risques naturels (ODD 11, 13 - inondations, incendies, érosion). Évalue la mise en place de plans de prévention et de dispositifs de gestion des risques naturels.",
+    "question": "Q5 - Gestion des risques naturels (ODD 11, 13) - inondations, incendies, érosion - . Évalue la mise en place de plans de prévention et de dispositifs de gestion des risques naturels.",
     "odds": [11, 13],
     "options": [
       { "val": 0, "text": "Aucun dispositif ni diagnostic des risques", "color": "rouge" },
@@ -79,7 +79,7 @@
   },
   {
     "id": 7,
-    "question": "Q7 - État de la biodiversité et mesures de protection (ODD 15). Évalue l’existence d’inventaires de la biodiversité locale et la mise en œuvre de mesures de protection (trames vertes/bleues, refuges LPO).",
+    "question": "Q7 - État de la biodiversité et mesures de protection (ODD 15). Évalue l’existence d’inventaires de la biodiversité locale et la mise en œuvre de mesures de protection - trames vertes/bleues, refuges LPO -.",
     "odds": [15],
     "options": [
       { "val": 0, "text": "Aucune mesure de protection", "color": "rouge" },
@@ -105,7 +105,7 @@
   },
   {
     "id": 9,
-    "question": "Q9 - Politique d’économie circulaire et réduction des déchets (ODD 12). Évalue les initiatives communales pour réduire la production de déchets à la source (compostage, réemploi).",
+    "question": "Q9 - Politique d’économie circulaire et réduction des déchets (ODD 12). Évalue les initiatives communales pour réduire la production de déchets à la source - compostage, réemploi - .",
     "odds": [12],
     "options": [
       { "val": 0, "text": "Aucune initiative", "color": "rouge" },
@@ -118,7 +118,7 @@
   },
   {
     "id": 10,
-    "question": "Q10 - Restauration collective durable (ODD 12, 13, 15 - cantines scolaires, EHPAD). Pourcentage de produits bio, locaux ou issus du commerce équitable dans les repas servis par la commune.",
+    "question": "Q10 - Restauration collective durable (ODD 12, 13, 15) - cantines scolaires, EHPAD - . Pourcentage de produits bio, locaux ou issus du commerce équitable dans les repas servis par la commune.",
     "odds": [12, 13, 15],
     "options": [
       { "val": 0, "text": "0-10 %", "color": "rouge" },
@@ -157,7 +157,7 @@
   },
   {
     "id": 13,
-    "question": "Q13 - Éclairage public efficient (ODD 7, 13). Pourcentage de l’éclairage public utilisant des technologies économes (LED) ou géré de manière intelligente (extinction nocturne).",
+    "question": "Q13 - Éclairage public efficient (ODD 7, 13). Pourcentage de l’éclairage public utilisant des technologies économes - LED - ou géré de manière intelligente - extinction nocturne - .",
     "odds": [7, 13],
     "options": [
       { "val": 0, "text": "0-10 %", "color": "rouge" },
@@ -248,7 +248,7 @@
   },
   {
     "id": 20,
-    "question": "Q20 - Participation citoyenne aux décisions municipales (ODD 16, 17). Évalue l’existence de dispositifs de participation citoyenne (conseils de quartier, budgets participatifs).",
+    "question": "Q20 - Participation citoyenne aux décisions municipales (ODD 16, 17). Évalue l’existence de dispositifs de participation citoyenne - conseils de quartier, budgets participatifs - .",
     "odds": [16, 17],
     "options": [
       { "val": 0, "text": "Aucune consultation", "color": "rouge" },
@@ -313,7 +313,7 @@
   },
   {
     "id": 25,
-    "question": "Q25 - Services adaptés aux besoins des personnes âgées (ODD 3, 10). Pourcentage de personnes âgées bénéficiant de services municipaux dédiés (portage de repas, visites).",
+    "question": "Q25 - Services adaptés aux besoins des personnes âgées (ODD 3, 10). Pourcentage de personnes âgées bénéficiant de services municipaux dédiés - portage de repas, visites - .",
     "odds": [3, 10],
     "options": [
       { "val": 0, "text": "0-10 %", "color": "rouge" },
@@ -430,7 +430,7 @@
   },
   {
     "id": 34,
-    "question": "Q34 - Soutien à l’économie locale et durable (ODD 8, 12). Pourcentage des entreprises locales bénéficiant de soutiens municipaux (subventions, visibilité, dispositifs).",
+    "question": "Q34 - Soutien à l’économie locale et durable (ODD 8, 12). Pourcentage des entreprises locales bénéficiant de soutiens municipaux - subventions, visibilité, dispositifs - .",
     "odds": [8, 12],
     "options": [
       { "val": 0, "text": "Moins de 6 %", "color": "rouge" },
@@ -456,7 +456,7 @@
   },
   {
     "id": 36,
-    "question": "Q36 - Aménagement durable et sobriété foncière (ODD 11). Évalue l’application des normes de durabilité dans les nouvelles constructions (RE2020) et la lutte contre l’artificialisation (ZAN 2050).",
+    "question": "Q36 - Aménagement durable et sobriété foncière (ODD 11). Évalue l’application des normes de durabilité dans les nouvelles constructions - RE2020 - et la lutte contre l’artificialisation - ZAN 2050 - .",
     "odds": [11],
     "options": [
       { "val": 0, "text": "Moins de 1 %", "color": "rouge" },
@@ -469,7 +469,7 @@
   },
   {
     "id": 37,
-    "question": "Q37 - Gestion durable des zones urbaines et projets éco-responsables (ODD 9, 11, 12). Nombre de zones ou de quartiers faisant l’objet d’une gestion certifiée éco-responsable (ÉcoQuartiers, ÉcoCités).",
+    "question": "Q37 - Gestion durable des zones urbaines et projets éco-responsables (ODD 9, 11, 12). Nombre de zones ou de quartiers faisant l’objet d’une gestion certifiée éco-responsable - ÉcoQuartiers, ÉcoCités - .",
     "odds": [9, 11, 12],
     "options": [
       { "val": 0, "text": "Aucune zone", "color": "rouge" },
@@ -534,7 +534,7 @@
   },
   {
     "id": 42,
-    "question": "Q42 - Filières locales dans la restauration collective (ODD 8, 12, 13 - Loi Egalim). Pourcentage de l’approvisionnement municipal issu de filières locales de proximité.",
+    "question": "Q42 - Filières locales dans la restauration collective (ODD 8, 12, 13) - Loi Egalim - . Pourcentage de l’approvisionnement municipal issu de filières locales de proximité.",
     "odds": [8, 12, 13],
     "options": [
       { "val": 0, "text": "0 - 18 %", "color": "rouge" },
@@ -612,7 +612,7 @@
   },
   {
     "id": 48,
-    "question": "Q48 – Inclusion des jeunes et accès à l’éducation/emploi (ODD 4, 8, 10). Pourcentage de jeunes (15-29 ans) qui ne sont ni scolarisés, ni en emploi, ni en formation (NEET).",
+    "question": "Q48 – Inclusion des jeunes et accès à l’éducation/emploi (ODD 4, 8, 10). Pourcentage de jeunes  - 15-29 ans - qui ne sont ni scolarisés, ni en emploi, ni en formation - NEET -.",
     "odds": [4, 8, 10],
     "options": [
       { "val": 0, "text": "> 12.8 %", "color": "rouge" },
