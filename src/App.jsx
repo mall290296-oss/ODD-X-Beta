@@ -482,7 +482,7 @@ function App() {
           <div className="space-y-8 animate-in fade-in">
             <div className="space-y-4">
               <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Priorités stratégiques</h2>
-              <p className="text-slate-500 text-lg max-w-4xl leading-relaxed italic border-l-4 border-slate-200 pl-6">
+              <p className="text-slate-400 text-lg max-w-4xl leading-relaxed italic border-l-4 border-slate-200 pl-6">
                 "Nous ne vous proposons ici que des recommandations générales. Si vous avez besoin d'une approche spécifique, veuillez contacter un spécialiste ou consulter la liste des institutions publiques figurant sur ce site web."
               </p>
             </div>
