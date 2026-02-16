@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
+import QRCodeBlock from "./QRCodeBlock";
 
 const colorMap = {
   "rouge": "bg-red-100 text-red-700 border-red-400 hover:bg-red-200",
@@ -267,7 +268,7 @@ function App() {
 
             {/* reste de ton contenu */}
       </div>
-      
+
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in">
             <div className="space-y-8">
