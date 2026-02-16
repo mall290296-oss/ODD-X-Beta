@@ -508,7 +508,7 @@ function App() {
           <div className="space-y-12 animate-in fade-in">
             <div className="space-y-4">
               <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Institutions spécialisées</h2>
-              <p className="text-slate-500 text-lg max-w-3xl leading-relaxed">
+              <p className="text-slate-400 text-lg max-w-3xl leading-relaxed">
                 Ces organismes publics et réseaux d'experts pourraient vous accompagner dans votre transition durable et vous aider à améliorer vos performances en matière d'ODD.
               </p>
             </div>
