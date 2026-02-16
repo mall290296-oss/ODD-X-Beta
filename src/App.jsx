@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
-import QRCodeBlock from "./QRCodeBlock";
 
 const colorMap = {
   "rouge": "bg-red-100 text-red-700 border-red-400 hover:bg-red-200",
@@ -254,19 +253,6 @@ function App() {
             </div>
           </div>
         )}
-      <div className="max-w-6xl mx-auto p-6 space-y-8">
-          
-        <header className="text-center">
-          <h1 className="text-3xl font-bold">
-              Diagnostic ODD
-              </h1>
-            </header>
-
-            {/* QR CODE */}
-            <QRCodeBlock />
-
-            {/* reste de ton contenu */}
-      </div>
 
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in">
@@ -480,7 +466,7 @@ function App() {
           <div className="space-y-8 animate-in fade-in">
             <div className="space-y-4">
               <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Priorités stratégiques</h2>
-              <p className="text-slate-400 text-lg max-w-4xl leading-relaxed italic border-l-4 border-slate-200 pl-6">
+              <p className="text-slate-500 text-lg max-w-4xl leading-relaxed italic border-l-4 border-slate-200 pl-6">
                 "Nous ne vous proposons ici que des recommandations générales. Si vous avez besoin d'une approche spécifique, veuillez contacter un spécialiste ou consulter la liste des institutions publiques figurant sur ce site web."
               </p>
             </div>
@@ -508,7 +494,7 @@ function App() {
           <div className="space-y-12 animate-in fade-in">
             <div className="space-y-4">
               <h2 className="text-5xl font-black italic uppercase underline decoration-blue-500 text-slate-900">Institutions spécialisées</h2>
-              <p className="text-slate-400 text-lg max-w-3xl leading-relaxed">
+              <p className="text-slate-500 text-lg max-w-3xl leading-relaxed">
                 Ces organismes publics et réseaux d'experts pourraient vous accompagner dans votre transition durable et vous aider à améliorer vos performances en matière d'ODD.
               </p>
             </div>
