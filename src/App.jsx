@@ -456,4 +456,137 @@ function App() {
   );
 }
 
+// ... (garder tous les imports et les constantes colorMap, oddIcons, oddDescriptions au début)
+
+function App() {
+  // ... (garder les autres states : activeTab, profiles, muralInfo, citizenIdeas, etc.)
+
+  // --- NOUVELLE FONCTION POUR SUPPRIMER UNE IDÉE ---
+  const handleDeleteIdea = (index) => {
+    if (window.confirm("Supprimer cette idée ?")) {
+      const newIdeas = [...citizenIdeas];
+      newIdeas.splice(index, 1);
+      setCitizenIdeas(newIdeas);
+    }
+  };
+
+  // --- LOGIQUE DE GROUPEMENT DES QUESTIONS ---
+  const groupedQuestions = [
+    {
+      title: "PARTIE 1 - ENVIRONNEMENT",
+      questions: questions.filter(q => q.id >= 1 && q.id <= 17)
+    },
+    {
+      title: "PARTIE 2 - SOCIAL & GOUVERNANCE",
+      questions: questions.filter(q => q.id >= 18 && q.id <= 33)
+    },
+    {
+      title: "PARTIE 3 - ÉCONOMIE & AMÉNAGEMENT DURABLE",
+      questions: questions.filter(q => q.id >= 34 && q.id <= 50)
+    }
+  ];
+
+  // ... (garder useMemo pour les scores, chartOption, handleAddIdea, etc.)
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200">
+      {/* ... Nav identique ... */}
+
+      <div className="max-w-7xl mx-auto px-8 py-12">
+        {/* ... Accueil, À Propos, Diagnostic identiques ... */}
+
+        {activeTab === "Questionnaire" && (
+           <div className="space-y-12 animate-in fade-in">
+              <div className="bg-white border border-slate-200 p-6 rounded-3xl mb-8 flex justify-between items-center shadow-sm sticky top-24 z-40">
+                <div>
+                   <p className="text-sm font-black uppercase tracking-widest text-blue-600 italic">Diagnostic en cours</p>
+                   <p className="text-lg font-bold text-slate-800">{muralInfo["Nom de la commune"]}</p>
+                </div>
+                <button onClick={() => setActiveTab("Diagnostic")} className="bg-slate-100 hover:bg-slate-200 px-6 py-2 rounded-full text-xs font-black uppercase text-slate-600 transition-colors">Retour aux infos</button>
+              </div>
+
+              {groupedQuestions.map((group, gIdx) => (
+                <div key={gIdx} className="space-y-6">
+                  <h3 className="text-3xl font-black text-slate-900 italic border-l-8 border-blue-600 pl-4 py-2 bg-slate-100/50 rounded-r-xl">
+                    {group.title}
+                  </h3>
+                  
+                  {group.questions.map((q) => (
+                    <div key={q.id} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm">
+                      <div className="flex gap-2 mb-4">
+                        {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
+                      </div>
+                      <p className="text-xl font-bold mb-6 text-slate-800">{q.id}. {q.question.replace(/^Q\d+\s?[-–]\s?/, "")}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {q.options.map((opt, idx) => {
+                          const pts = idx === 5 ? 0 : idx + 1; 
+                          const sel = answers[q.id] === pts;
+                          return (
+                            <button key={idx} onClick={() => setAnswers({...answers, [q.id]: pts})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-[11px] flex items-center gap-3 ${sel ? "ring-4 ring-blue-100 border-blue-400 scale-[1.01]" : "opacity-90"} ${colorMap[opt.color] || "bg-slate-50"}`}>
+                              <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0 flex items-center justify-center bg-white">
+                                {sel && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                              </div>
+                              {opt.text.replace(/^X\s/, "")}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              
+              <button onClick={() => { window.scrollTo(0,0); setActiveTab("Résultats"); }} className="w-full bg-blue-600 text-white p-8 rounded-3xl font-black uppercase text-xl shadow-xl shadow-blue-200 transition-all hover:bg-blue-700 hover:scale-[1.02]">
+                Calculer les résultats finaux
+              </button>
+           </div>
+        )}
+
+        {/* ... Résultats, Priorités, Partenaires identiques ... */}
+
+        {activeTab === "Citoyens" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 animate-in fade-in">
+             <div className="lg:col-span-1 bg-white p-8 rounded-[40px] border border-slate-200 h-fit shadow-sm sticky top-24">
+                <h3 className="text-xl font-black mb-6 uppercase tracking-widest text-blue-600">Proposer une idée</h3>
+                <form onSubmit={handleAddIdea} className="space-y-4">
+                  {/* ... (Select et Textarea identiques) ... */}
+                  <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">Publier l'idée</button>
+                </form>
+             </div>
+
+             <div className="lg:col-span-2 space-y-6">
+                <h3 className="text-2xl font-black uppercase italic border-b border-slate-200 pb-4 text-slate-900">Boîte à idées citoyenne</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {citizenIdeas.map((idea, idx) => (
+                    <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between group relative">
+                      {/* BOUTON SUPPRIMER */}
+                      <button 
+                        onClick={() => handleDeleteIdea(idx)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 z-10"
+                        title="Supprimer l'idée"
+                      >
+                        ✕
+                      </button>
+
+                      <div className="flex gap-4 mb-4">
+                         <img src={oddIcons[idea.odd]} alt="" className="w-10 h-10 rounded-md shrink-0" />
+                         <p className="font-bold italic text-slate-700 leading-tight">"{idea.text}"</p>
+                      </div>
+                      <div className="flex justify-between items-center mt-auto border-t border-slate-50 pt-4">
+                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">{idea.odd}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Le {idea.date}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+             </div>
+          </div>
+        )}
+
+        {/* ... Contact identique ... */}
+      </div>
+    </div>
+  );
+}
+
 export default App;
