@@ -2,34 +2,6 @@ import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
 
-// Configuration des couleurs par section
-const sectionStyles = {
-  env: {
-    bg: "bg-[#2d6a4f]", // Vert profond
-    bgHover: "hover:bg-[#1b4332]",
-    text: "text-green-300",
-    border: "border-green-600",
-    accent: "bg-green-500/20",
-    button: "text-[#2d6a4f]"
-  },
-  soc: {
-    bg: "bg-[#1a5f7a]", // Bleu actuel (maintenu pour le social)
-    bgHover: "hover:bg-[#14495e]",
-    text: "text-blue-300",
-    border: "border-blue-600",
-    accent: "bg-blue-500/20",
-    button: "text-[#1a5f7a]"
-  },
-  eco: {
-    bg: "bg-[#bc4749]", // Orange/Rouge brique pour l'économie
-    bgHover: "hover:bg-[#9b2226]",
-    text: "text-orange-200",
-    border: "border-orange-600",
-    accent: "bg-orange-500/20",
-    button: "text-[#bc4749]"
-  }
-};
-
 const colorMap = {
   "rouge": "bg-red-100 text-red-700 border-red-400 hover:bg-red-200",
   "orange": "bg-orange-100 text-orange-700 border-orange-400 hover:bg-orange-200",
@@ -351,32 +323,31 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
                   {groupedQuestions.map((group) => {
                     const progress = getGroupProgress(group.questions);
-                    const style = sectionStyles[group.id];
                     return (
                       <button
                         key={group.id}
                         onClick={() => { setActiveDiagnosticSection(group.id); window.scrollTo(0,0); }}
-                        className={`relative aspect-[3/4] ${style.bg} rounded-[30px] shadow-2xl p-10 flex flex-col justify-center items-center text-center group hover:scale-[1.03] ${style.bgHover} transition-all duration-300 overflow-hidden border-4 border-transparent hover:border-white/10`}
+                        className="relative aspect-[3/4] bg-[#1a5f7a] rounded-[30px] shadow-2xl p-10 flex flex-col justify-center items-center text-center group hover:scale-[1.03] hover:bg-[#14495e] transition-all duration-300 overflow-hidden border-4 border-transparent hover:border-white/10"
                       >
                         <div 
-                          className={`absolute bottom-0 left-0 w-full ${style.accent} transition-all duration-1000`} 
+                          className="absolute bottom-0 left-0 w-full bg-blue-500/20 transition-all duration-1000" 
                           style={{ height: `${progress.percent}%` }}
                         ></div>
 
                         <h3 className="relative z-10 text-white text-2xl font-black uppercase tracking-tighter leading-tight mb-4">
                           {group.title.split(' - ')[0]}<br/>
-                          <span className={`${style.text} text-lg italic">—</span><br/>
+                          <span className="text-blue-300 text-lg italic">—</span><br/>
                           {group.title.split(' - ')[1]}
                         </h3>
 
                         <div className="relative z-10 mt-6">
                            <div className="text-4xl font-black text-white">{progress.percent}%</div>
-                           <div className={`text-[10px] font-bold ${style.text} uppercase tracking-widest mt-1`}>
+                           <div className="text-[10px] font-bold text-blue-200 uppercase tracking-widest mt-1">
                              {progress.count} / {progress.total} RÉPONSES
                            </div>
                         </div>
 
-                        <div className={`relative z-10 mt-10 bg-white ${style.button} px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest group-hover:scale-110 transition-transform`}>
+                        <div className="relative z-10 mt-10 bg-white text-[#1a5f7a] px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest group-hover:scale-110 transition-transform">
                           {progress.percent === 100 ? "Modifier" : "Commencer"}
                         </div>
                       </button>
@@ -387,63 +358,61 @@ function App() {
                 <div className="space-y-8 animate-in slide-in-from-right-10">
                   {groupedQuestions
                     .filter(g => g.id === activeDiagnosticSection)
-                    .map((group) => {
-                      const style = sectionStyles[group.id];
-                      return (
-                        <div key={group.id} className="space-y-8">
-                          <div className={`flex justify-between items-end border-b-4 ${group.id === 'env' ? 'border-green-600' : group.id === 'soc' ? 'border-blue-600' : 'border-red-600'} pb-4`}>
-                            <h3 className="text-4xl font-black text-slate-900 italic uppercase leading-none">
-                              {group.title}
-                            </h3>
-                            <span className={`${group.id === 'env' ? 'text-green-600' : group.id === 'soc' ? 'text-blue-600' : 'text-red-600'} font-black tracking-widest uppercase text-sm`}>
-                              {getGroupProgress(group.questions).percent}% Complété
-                            </span>
-                          </div>
-                          
-                          {group.questions.map((q) => (
-                            <div key={q.id} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm">
-                              <div className="flex gap-2 mb-4">
-                                {q.odds.map(o => <span key={o} className={`text-[9px] ${group.id === 'env' ? 'bg-green-100 text-green-600' : group.id === 'soc' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-red-600'} px-2 py-0.5 rounded font-black`}>ODD {o}</span>)}
-                              </div>
-                              
-                              <p className="text-xl mb-6 text-slate-800">
-                                  <span className="font-black">{q.id}. </span>
-                                  {(() => {
-                                      const fullText = cleanQuestionText(q.question);
-                                      const dotIndex = fullText.indexOf('.');
-                                      if (dotIndex !== -1) {
-                                          const title = fullText.substring(0, dotIndex + 1);
-                                          const description = fullText.substring(dotIndex + 1);
-                                          return (
-                                              <>
-                                                  <span className="font-black">{title}</span>
-                                                  <span className="font-medium text-slate-600"> {description}</span>
-                                              </>
-                                          );
-                                      }
-                                      return <span className="font-black">{fullText}</span>;
-                                  })()}
-                              </p>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {q.options.map((opt, idx) => {
-                                  const pts = idx === 5 ? 0 : idx + 1; 
-                                  const sel = answers[q.id] === pts;
-                                  return (
-                                    <button key={idx} onClick={() => setAnswers({...answers, [q.id]: pts})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-[11px] flex items-center gap-3 ${sel ? "ring-4 ring-slate-100 border-slate-400 scale-[1.01]" : "opacity-90"} ${colorMap[opt.color] || "bg-slate-50"}`}>
-                                      <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0 flex items-center justify-center bg-white">
-                                        {sel && <div className={`w-2.5 h-2.5 ${group.id === 'env' ? 'bg-green-600' : group.id === 'soc' ? 'bg-blue-600' : 'bg-red-600'} rounded-full`} />}
-                                      </div>
-                                      {opt.text.replace(/^X\s/, "")}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ))}
+                    .map((group) => (
+                      <div key={group.id} className="space-y-8">
+                        <div className="flex justify-between items-end border-b-4 border-blue-600 pb-4">
+                          <h3 className="text-4xl font-black text-slate-900 italic uppercase leading-none">
+                            {group.title}
+                          </h3>
+                          <span className="text-blue-600 font-black tracking-widest uppercase text-sm">
+                            {getGroupProgress(group.questions).percent}% Complété
+                          </span>
                         </div>
-                      )
-                    })}
+                        
+                        {group.questions.map((q) => (
+                          <div key={q.id} className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm">
+                            <div className="flex gap-2 mb-4">
+                              {q.odds.map(o => <span key={o} className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-black">ODD {o}</span>)}
+                            </div>
+                            
+                            {/* LOGIQUE DE MISE EN GRAS DU TITRE AVANT LE POINT */}
+                            <p className="text-xl mb-6 text-slate-800">
+                                <span className="font-black">{q.id}. </span>
+                                {(() => {
+                                    const fullText = cleanQuestionText(q.question);
+                                    const dotIndex = fullText.indexOf('.');
+                                    if (dotIndex !== -1) {
+                                        const title = fullText.substring(0, dotIndex + 1);
+                                        const description = fullText.substring(dotIndex + 1);
+                                        return (
+                                            <>
+                                                <span className="font-black">{title}</span>
+                                                <span className="font-medium text-slate-600"> {description}</span>
+                                            </>
+                                        );
+                                    }
+                                    return <span className="font-black">{fullText}</span>;
+                                })()}
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {q.options.map((opt, idx) => {
+                                const pts = idx === 5 ? 0 : idx + 1; 
+                                const sel = answers[q.id] === pts;
+                                return (
+                                  <button key={idx} onClick={() => setAnswers({...answers, [q.id]: pts})} className={`p-4 rounded-xl border text-left transition-all font-bold uppercase text-[11px] flex items-center gap-3 ${sel ? "ring-4 ring-blue-100 border-blue-400 scale-[1.01]" : "opacity-90"} ${colorMap[opt.color] || "bg-slate-50"}`}>
+                                    <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0 flex items-center justify-center bg-white">
+                                      {sel && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                                    </div>
+                                    {opt.text.replace(/^X\s/, "")}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
 
                   <div className="flex flex-col md:flex-row gap-6 pt-10 pb-20">
                     <button 
