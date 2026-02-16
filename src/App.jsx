@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
+import QRCodeBlock from "./QRCodeBlock";
 
 const colorMap = {
   "rouge": "bg-red-100 text-red-700 border-red-400 hover:bg-red-200",
@@ -253,6 +254,20 @@ function App() {
             </div>
           </div>
         )}
+      
+      <div className="max-w-6xl mx-auto p-6 space-y-8">
+          
+        <header className="text-center">
+          <h1 className="text-3xl font-bold">
+              Diagnostic ODD
+              </h1>
+            </header>
+
+            {/* QR CODE */}
+            <QRCodeBlock />
+
+            {/* reste de ton contenu */}
+      </div>
 
         {activeTab === "À Propos" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center py-12 animate-in">
