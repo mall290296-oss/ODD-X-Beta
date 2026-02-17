@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import questions from "./formulaire.json";
-import QRCodeBlock from "./QRCodeBlock";
 
 const colorMap = {
   "rouge": "bg-red-100 text-red-700 border-red-400 hover:bg-red-200",
